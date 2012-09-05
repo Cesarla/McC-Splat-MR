@@ -147,7 +147,7 @@ public class McCSplat {
 
 			runInitializeJob(pathName);
 
-			for (i = 1; i < 2; i++) {
+			for (i = 1; i < 3; i++) {
 				runRankJob(pathName, i);
 			}
 
@@ -259,8 +259,7 @@ public class McCSplat {
 	/**
 	 * Initializes McC-Splat
 	 * 
-	 * @param args
-	 *            Command Line arguments
+	 * @param args Command Line arguments
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {

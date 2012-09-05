@@ -33,10 +33,8 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 		if (hasValidLength(phrases)) {
 			writeFollowee(phrases[1], phrases[0]);
 			
-			//ok
 			writeFollower(getUserName(phrases[0]), phrases[1]);
 			
-			//ok
 			if (isVerified(phrases[0])) {
 				writeFollowee(getUserName(phrases[0]), phrases[0]);
 			}

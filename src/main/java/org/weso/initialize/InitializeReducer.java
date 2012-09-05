@@ -18,13 +18,6 @@ public class InitializeReducer extends Reducer<Text, Text, Text, Text> {
 
 	private Set<String> followers = new HashSet<String>();
 
-	/**
-	 * Remove the repeated values and writes the results in the Hadoop Output
-	 * 
-	 * @param key
-	 * @param values
-	 * @param context
-	 */
 	@Override
 	public void reduce(Text key, Iterable<Text> values, Context context)
 			throws IOException, InterruptedException {
@@ -35,8 +28,7 @@ public class InitializeReducer extends Reducer<Text, Text, Text, Text> {
 	/**
 	 * Load the values within a HashSet.
 	 * 
-	 * @param values
-	 *            Iterable with the properties of a user.
+	 * @param values Iterable with the properties of a user.
 	 */
 	private void filterValues(Iterable<Text> values) throws IllegalArgumentException{
 		if(values == null)
@@ -50,10 +42,8 @@ public class InitializeReducer extends Reducer<Text, Text, Text, Text> {
 	/**
 	 * Write the result in the Hadoop Output.
 	 * 
-	 * @param key
-	 *            User name of the current user.
-	 * @param context
-	 *            The Context passed on to the Reducer implementations.
+	 * @param key  User name of the current user.
+	 * @param context The Context passed on to the Reducer implementations.
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */

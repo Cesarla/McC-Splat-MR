@@ -10,31 +10,54 @@ import java.util.Set;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
+/**
+ * 
+ * @author César Luis Alvargonzález
+ * 
+ *         http://www.weso.es
+ * 
+ */
 public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	
-	public final static char FOLLOWEE = '0';
-	public final static char FOLLOWER = '1';
-	
-	private static String UNDEFINED = "#100.0000:UNDEFINED";
+	private final static char FOLLOWEE = '0';
+	private final static char FOLLOWER = '1';
+	private final static String UNDEFINED = "#100.0000:UNDEFINED";
 	
 	private Set<String> followees = new HashSet<String>();
 	private Set<String> followers = new HashSet<String>();
 	
 	private int followeesSize = 0;
+	private Text result = null;
+	private String currentUser = null;
 	
-	private Text result;
-	
-	private String currentUser;
-	
+	private Context context = null;
 	@Override
 	public void reduce(Text key, Iterable<Text> values, Context context)
 			throws IOException, InterruptedException {
-		
-		String user = null;
+		this.context = context;
+		resetReducer(key);
+		loadUsers(values);
+		calculateRank();
+		writeResults();
+	}
+
+	/**
+	 * Initialize the reducer, cleaning the followers and followees sets,
+	 * and setting the current user.
+	 * @param key Current User
+	 */
+	private void resetReducer(Text key) {
 		followees.clear();
 		followers.clear();
 		currentUser = key.toString();
-		
+	}
+
+	/**
+	 * Loads the followees and followers in its set.
+	 * @param values Iterable of followers and followees of the current user.
+	 */
+	private void loadUsers(Iterable<Text> values) {
+		String user;
 		for (Text value : values) {
 			user = value.toString();
 			
@@ -47,27 +70,17 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 				break;
 			}
 		}
-		
 		followeesSize = followees.size();
-		
-		calculateRank(key.toString());
-		
-		for(String follower : followers){
-			context.write(result, new Text(follower));
-		}
 	}
 	
-	private void calculateRank(String name){
-		Iterator<java.util.Map.Entry<String, Double>> it;
-		StringBuilder out;
-		
+	/**
+	 * Calculate the rank for the current user.
+	 */
+	private void calculateRank(){
 		Map<String, Double> values = loadValues();
+		Iterator<java.util.Map.Entry<String, Double>> it = values.entrySet().iterator();
+		StringBuilder out = new StringBuilder(currentUser);
 		
-		result = null;
-		
-		it = values.entrySet().iterator();
-		
-		out = new StringBuilder(name);
 		if(values.size()>0){
 			while (it.hasNext()) {
 				java.util.Map.Entry<String, Double> pair = it.next();
@@ -78,6 +91,18 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 		}
 		 
 		result = new Text(out.toString());
+	}
+	
+	/**
+	 * Write the results in the Hadoop Output.
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	private void writeResults() throws IOException,
+	InterruptedException {
+		for(String follower : followers){
+			context.write(result, new Text(follower));
+		}
 	}
 
 	private Map<String, Double> loadValues() {

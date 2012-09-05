@@ -35,12 +35,6 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 	private Map<String, String> verifiedData = null;
 
-	/**
-	 * Merges the follows data file, Hadoop input, with the verified data file.
-	 * @param key
-	 * @param value
-	 * @param context
-	 */
 	@Override
 	public void map(LongWritable key, Text value, Context context)
 			throws IOException, InterruptedException {
@@ -99,8 +93,7 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	/**
 	 * Returns the property name assigned to the user name.
 	 * 
-	 * @param userName
-	 *            User name who is searched for a value
+	 * @param userName User name who is searched for a value
 	 * @return Property name assigned to the user name.
 	 */
 	private String getProperty(String userName) {
@@ -114,8 +107,7 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	/**
 	 * Returns the verified data file path set in the parameters.
 	 * 
-	 * @param context
-	 *            The Context passed on to the Mapper implementations.
+	 * @param context The Context passed on to the mapper implementations.
 	 * @return Verified data file path set in the parameters.
 	 */
 	private String getVerifiedDataPath(Context context) {
@@ -126,8 +118,7 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 	/**
 	 * Read the verified data file and load it into a Map.
-	 * @param path
-	 *            Path of the defined data file.
+	 * @param path Path of the defined data file.
 	 * @return A map of user names as keys and verified properties as values
 	 * @throws IOException
 	 */
