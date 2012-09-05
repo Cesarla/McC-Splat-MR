@@ -26,6 +26,7 @@ import org.weso.utils.Mode;
 
 /**
  * Analyzes the command line arguments, and starts the McCSplat Processing.
+ * McCSplat is a Singleton Class.
  * 
  * @author César Luis Alvargonzález
  * 
@@ -34,30 +35,34 @@ import org.weso.utils.Mode;
  */
 public class McCSplat {
 
-	private static String MCC_SPLAT_VERSION = "0.1.0.1207230";
-
-	private CmdLineParser parser;
-
 	@Argument(required = true, index = 0, usage = "File 'a' Follows 'b'", metaVar = "follows <File>")
-	private String follows;
+	private String follows = null;
 
 	@Argument(required = true, index = 1, usage = "Data", metaVar = "data <File>")
-	private String data;
+	private String data = null;
 
 	@Argument(required = false, index = 2, usage = "mode <\"Plain Vanilla\"="
 			+ Mode.PLAIN_VANILLA + ", \"Sink Absolute\"=" + Mode.SINK_ABSOLUTE
 			+ ", \"Sink Relative\"=" + Mode.SINK_RELATIVE + ", \"Percentile\"="
 			+ Mode.PERCENTILE, metaVar = "mode <Integer>")
-	private Integer mode;
+	private Integer mode = null;
 
 	@Option(name = "-h", aliases = { "--help" }, usage = "print this message")
 	private boolean help = false;
 
+	private static String MCC_SPLAT_VERSION = "0.1.0.1207230";
+
+	private CmdLineParser parser = null;
+	
 	public static McCSplat MCCSPLAT_INSTANCE = null;
 
 	private McCSplat() {
 	}
 
+	/**
+	 * Returns an instance of McCSplat Class
+	 * @return Instance of McCSplat Class
+	 */
 	public static McCSplat getInstance() {
 		if (MCCSPLAT_INSTANCE == null) {
 			MCCSPLAT_INSTANCE = new McCSplat();
@@ -91,6 +96,11 @@ public class McCSplat {
 
 	}
 
+	/**
+	 * Validates the data provided as command line arguments
+	 * @throws IllegalArgumentException
+	 * @throws IOException
+	 */
 	private void validateInputData() throws IllegalArgumentException,
 			IOException {
 		validatePath(follows);
@@ -98,6 +108,12 @@ public class McCSplat {
 		validateMode(mode);
 	}
 
+	/**
+	 * Checks if a path is a valid path
+	 * @param path Path of a directory or a file
+	 * @throws IllegalArgumentException
+	 * @throws IOException
+	 */
 	private void validatePath(String path) throws IllegalArgumentException,
 			IOException {
 		FileSystem fs = FileSystem.get(new Configuration());
@@ -105,6 +121,11 @@ public class McCSplat {
 			throw new IllegalArgumentException(path + " is no a valid path");
 	}
 
+	/**
+	 * Checks if the mode provided is valid.
+	 * @param mode Mode of the McCSplat Algorithm.
+	 * @throws IllegalArgumentException
+	 */
 	private void validateMode(Integer mode) throws IllegalArgumentException {
 		if (mode != null && (mode < Mode.MIN_VALUE || mode > Mode.MAX_VALUE))
 			throw new IllegalArgumentException(
@@ -113,7 +134,7 @@ public class McCSplat {
 	}
 
 	/**
-	 * Analyzes the input arguments, and executes the job.
+	 * Analyzes the input arguments, and executes the job
 	 * 
 	 * @throws Exception
 	 */
@@ -130,11 +151,18 @@ public class McCSplat {
 				runRankJob(pathName, i);
 			}
 
-			//runFinalizeJob(pathName, i);
+			// runFinalizeJob(pathName, i);
 		}
 
 	}
 
+	/**
+	 * Runs the Initialize Job
+	 * @param pathName Path of the Hadoop Output
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws ClassNotFoundException
+	 */
 	private void runInitializeJob(String pathName) throws IOException,
 			InterruptedException, ClassNotFoundException {
 		Configuration conf = new Configuration();
@@ -154,6 +182,14 @@ public class McCSplat {
 		job.waitForCompletion(true);
 	}
 
+	/**
+	 * Executes the Rank Job
+	 * @param pathName Path of the Hadoop Output
+	 * @param i Counter of the job execution
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws ClassNotFoundException
+	 */
 	private void runRankJob(String pathName, int i) throws IOException,
 			InterruptedException, ClassNotFoundException {
 		Job job;
@@ -171,6 +207,15 @@ public class McCSplat {
 		job.waitForCompletion(true);
 	}
 
+	/**
+	 * Runs the Finalize Job
+	 * @param pathName Path of the Hadoop Output
+	 * @param i Counter of the job execution
+	 * @throws CmdLineException
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws ClassNotFoundException
+	 */
 	private void runFinalizeJob(String pathName, int i)
 			throws CmdLineException, IOException, InterruptedException,
 			ClassNotFoundException {
@@ -192,6 +237,11 @@ public class McCSplat {
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
 	}
 
+	/**
+	 * Returns the McCSplat mode
+	 * @return McCSplat mode
+	 * @throws CmdLineException
+	 */
 	private int getMode() throws CmdLineException {
 		if (mode == null)
 			return Mode.PLAIN_VANILLA;
@@ -199,7 +249,7 @@ public class McCSplat {
 	}
 
 	/**
-	 * Displays help information about hadoop-benchmark
+	 * Displays help information about McCSplat
 	 */
 	private void displayHelp() {
 		System.out.println("McC-Splat-" + MCC_SPLAT_VERSION);
