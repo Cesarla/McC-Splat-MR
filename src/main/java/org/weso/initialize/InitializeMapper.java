@@ -112,7 +112,7 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 */
 	private String getVerifiedDataPath(Context context) {
 		Configuration conf = context.getConfiguration();
-		String path = conf.get("data");
+		String path = conf.get("verifiedData");
 		return path;
 	}
 

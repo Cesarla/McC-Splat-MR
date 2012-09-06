@@ -73,8 +73,7 @@ public class McCSplat {
 	/**
 	 * Set Command Line arguments
 	 * 
-	 * @param args
-	 *            Command Line arguments
+	 * @param args Command Line arguments
 	 * @return
 	 * @throws Exception
 	 */
@@ -143,12 +142,12 @@ public class McCSplat {
 		if (help == true) {
 			displayHelp();
 		} else {
-			String pathName = "/user/hduser/out/_" + new Date().getTime();
+			String executionPath = "/user/hduser/out/_" + new Date().getTime();
 
-			runInitializeJob(pathName);
+			runInitializeJob(executionPath);
 
 			for (i = 1; i < 3; i++) {
-				runRankJob(pathName, i);
+				runRankJob(executionPath, i);
 			}
 
 			// runFinalizeJob(pathName, i);
@@ -158,15 +157,15 @@ public class McCSplat {
 
 	/**
 	 * Runs the Initialize Job
-	 * @param pathName Path of the Hadoop Output
+	 * @param executionPath Path of the Hadoop Output
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws ClassNotFoundException
 	 */
-	private void runInitializeJob(String pathName) throws IOException,
+	private void runInitializeJob(String executionPath) throws IOException,
 			InterruptedException, ClassNotFoundException {
 		Configuration conf = new Configuration();
-		conf.set("data", data);
+		conf.set("verifiedData", data);
 
 		Job job = new Job(conf);
 		job.setJobName("McCSPlat-Initialize");
@@ -178,22 +177,23 @@ public class McCSplat {
 		job.setOutputValueClass(Text.class);
 
 		FileInputFormat.addInputPath(job, new Path(follows));
-		FileOutputFormat.setOutputPath(job, new Path(pathName + "/1"));
+		FileOutputFormat.setOutputPath(job, new Path(executionPath + "/1"));
 		job.waitForCompletion(true);
 	}
 
 	/**
 	 * Executes the Rank Job
-	 * @param pathName Path of the Hadoop Output
+	 * @param executionPath Path of the Hadoop Output
 	 * @param i Counter of the job execution
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws ClassNotFoundException
 	 */
-	private void runRankJob(String pathName, int i) throws IOException,
+	private void runRankJob(String executionPath, int i) throws IOException,
 			InterruptedException, ClassNotFoundException {
-		Job job;
-		job = new Job();
+		Configuration conf = new Configuration();
+		conf.setStrings("executionPath", executionPath);
+		Job job = new Job(conf);
 		job.setJobName("McCSPlat-Rank");
 		job.setJarByClass(this.getClass());
 		job.setMapperClass(RankMapper.class);
@@ -202,27 +202,28 @@ public class McCSplat {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
 
-		FileInputFormat.addInputPath(job, new Path(pathName + "/" + (i)));
-		FileOutputFormat.setOutputPath(job, new Path(pathName + "/" + (i + 1)));
+		FileInputFormat.addInputPath(job, new Path(executionPath + "/" + (i)));
+		FileOutputFormat.setOutputPath(job, new Path(executionPath + "/" + (i + 1)));
 		job.waitForCompletion(true);
 	}
 
 	/**
 	 * Runs the Finalize Job
-	 * @param pathName Path of the Hadoop Output
+	 * @param executionPath Path of the Hadoop Output
 	 * @param i Counter of the job execution
 	 * @throws CmdLineException
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws ClassNotFoundException
 	 */
-	private void runFinalizeJob(String pathName, int i)
+	private void runFinalizeJob(String executionPath, int i)
 			throws CmdLineException, IOException, InterruptedException,
 			ClassNotFoundException {
 		Configuration conf = null;
 		Job job = null;
 		conf = new Configuration();
 		conf.setInt("mode", getMode());
+		conf.setStrings("path", executionPath);
 		job = new Job(conf);
 		job.setJobName("McCSPlat-Finalize");
 		job.setJarByClass(this.getClass());
@@ -232,8 +233,8 @@ public class McCSplat {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
 
-		FileInputFormat.addInputPath(job, new Path(pathName + "/" + (i)));
-		FileOutputFormat.setOutputPath(job, new Path(pathName + "/" + (i + 1)));
+		FileInputFormat.addInputPath(job, new Path(executionPath + "/" + (i)));
+		FileOutputFormat.setOutputPath(job, new Path(executionPath + "/" + (i + 1)));
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
 	}
 

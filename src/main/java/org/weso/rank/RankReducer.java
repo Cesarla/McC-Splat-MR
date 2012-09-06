@@ -7,6 +7,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
@@ -29,8 +33,9 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	private int followeesSize = 0;
 	private Text result = null;
 	private String currentUser = null;
-	
+	private String executionPath = null;
 	private Context context = null;
+	
 	@Override
 	public void reduce(Text key, Iterable<Text> values, Context context)
 			throws IOException, InterruptedException {
@@ -47,6 +52,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	 * @param key Current User
 	 */
 	private void resetReducer(Text key) {
+		this.executionPath = context.getConfiguration().get("executionPath");
 		followees.clear();
 		followers.clear();
 		currentUser = key.toString();
@@ -103,8 +109,14 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 		for(String follower : followers){
 			context.write(result, new Text(follower));
 		}
+		if(currentUser.equals("sink"))
+			saveSinkData(result.toString());
 	}
 
+	/**
+	 * Loads current user properties into a Map
+	 * @return Map with user properties name and properties values.
+	 */
 	private Map<String, Double> loadValues() {
 		Map<String, Double> values = new HashMap<String, Double>();
 		Iterator<java.util.Map.Entry<String, Double>> it;
@@ -128,15 +140,13 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 		return values;
 	}
 	
-	private String getName(String user){
-		String chunks[] =  user.split("#");
-		return chunks[0];
-	}
-	
+	/**
+	 * Loads current user property:value into a Map
+	 * @return Map with user properties name and properties values.
+	 */
 	private Map<String,Double> getValues(String user){
 		
-		Map<String,Double> map = new HashMap<String, Double>();
-		
+		Map<String,Double> map = new HashMap<String, Double>();	
 		String chunks[] =  user.split("#");
 		
 		for(int i=0;i<chunks.length;i++){
@@ -144,7 +154,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 			if(aux.length>=2){
 				String name = aux[1];
 				if(name.contains("@V")){
-					if(currentUser.equals(getName(user))){
+					if(currentUser.equals(getUserName(user))){
 						map.clear();
 						map.put(name, new Double(aux[0]));
 						return map;
@@ -156,5 +166,32 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 			}
 		}
 		return map;
+	}
+	
+	/**
+	 * Returns the user name of an user
+	 * @param user User to find his user name 
+	 * @return User name of an user
+	 */
+	private String getUserName(String user){
+		String chunks[] =  user.split("#");
+		return chunks[0];
+	}
+	
+	/**
+	 * Save current sink data in the file system, from later processing.
+	 * @param data Data of the current sink node (user name with properties)
+	 * @throws IOException
+	 */
+	private void saveSinkData(String data) throws IOException{
+		FileSystem fs = FileSystem.get(new Configuration());
+		Path path = new Path(executionPath+"/sink/part-r-00000");
+		if(fs.exists(path)){
+			if(!fs.delete(path, false))
+				throw new IOException("Error while deleting \""+path.toString()+"\"");
+		}
+		FSDataOutputStream out = fs.create(path);
+		out.writeUTF(data);
+		out.close();
 	}
 }
