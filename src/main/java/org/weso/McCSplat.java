@@ -146,11 +146,11 @@ public class McCSplat {
 
 			runInitializeJob(executionPath);
 
-			for (i = 1; i < 3; i++) {
+			for (i = 1; i < 2; i++) {
 				runRankJob(executionPath, i);
 			}
 
-			// runFinalizeJob(pathName, i);
+			runFinalizeJob(executionPath, i);
 		}
 
 	}
@@ -223,7 +223,7 @@ public class McCSplat {
 		Job job = null;
 		conf = new Configuration();
 		conf.setInt("mode", getMode());
-		conf.setStrings("path", executionPath);
+		conf.setStrings("executionPath", executionPath);
 		job = new Job(conf);
 		job.setJobName("McCSPlat-Finalize");
 		job.setJarByClass(this.getClass());
