@@ -15,6 +15,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.weso.utils.Mode;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 /**
  * 
  * @author César Luis Alvargonzález
@@ -65,7 +67,12 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 		loadSinkValues();
 	}
 	
-	private Map<String, Double> processValues(Iterable<Text>values){
+	/**
+	 * Returns a Map with property names as key and property values as value
+	 * @param values Set of Text containing the property name mixed with the value
+	 * @return Map with property names as key and property values as value
+	 */
+	private Map<String, Double> processValues(Iterable<Text> values){
 		Map<String, Double> properties = new HashMap<String, Double>();
 		String[] property = null;
 		for(Text text : values){
@@ -100,6 +107,11 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 		return sinkProperties;
 	}
 
+	/**
+	 * Selects the property with the bigger value
+	 * @param properties Map with property names as key and property values as value
+	 * @return Property name selected
+	 */
 	private Text processPlainVanilla(Map<String, Double> properties) {
 		Iterator<Entry<String, Double>> it = properties.entrySet().iterator();
 		Entry<String, Double> biggerProperty = null;
@@ -112,19 +124,36 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 
 	}
 	
+	/**
+	 * Selects the property with the bigger value and above the corresponding
+	 * property in the sink node
+	 * @param properties Map with property names as key and property values as value
+	 * @return Property name selected
+	 */
 	private Text processSinkAbsolute(Map<String, Double> properties) {
 		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException();
 	}
 	
+	/**
+	 * Selects the property with the highest positive difference against the corresponding 
+	 * weight within the sink node
+	 * @param properties Map with property names as key and property values as value
+	 * @return Property name selected
+	 */
 	private Text processSinkRelative(Map<String, Double> properties) {
 		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException();
 	}
 	
+	/**
+	 * Selects the property with  highest percentile –according to the labeled individuals
+	 * @param properties Map with property names as key and property values as value
+	 * @return Property name selected
+	 */
 	private Text processPercentile(Map<String, Double> properties) {
 		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException();
 	}
 
 }
