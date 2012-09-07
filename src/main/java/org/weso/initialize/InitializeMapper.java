@@ -23,9 +23,9 @@ import org.apache.hadoop.mapreduce.Mapper;
  */
 public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 
-	private static String NEW_DATA = "#100.0000:";
 	private static String VERIFIED = "@V";
 	private static String UNDEFINED = "UNDEFINED";
+	private static String NEW_DATA = "#100.0000:";
 
 	private static Text SINK = new Text("sink");
 	private static Text NOBODY = new Text("nobody");

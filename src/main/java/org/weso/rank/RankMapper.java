@@ -18,6 +18,8 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 	private final static String FOLLOWEE = "0";
 	private final static String FOLLOWER = "1";
 	private final static String VERIFIED = "@V";
+	private final static String PROPERTY_INDICATOR = "#";
+	
 	private final static int VALID_LENGTH = 2;
 
 	private Context context;
@@ -95,7 +97,7 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @return User name of the phrase
 	 */
 	private String getUserName(String phrase) {
-		String chunks[] = phrase.split("#");
+		String chunks[] = phrase.split(PROPERTY_INDICATOR);
 		return chunks[0];
 	}
 

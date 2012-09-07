@@ -46,6 +46,9 @@ public class McCSplat {
 			+ ", \"Sink Relative\"=" + Mode.SINK_RELATIVE + ", \"Percentile\"="
 			+ Mode.PERCENTILE, metaVar = "mode <Integer>")
 	private Integer mode = null;
+	
+	@Argument(required = false, index = 3, usage = "Percentile", metaVar = "percentile <Integer>")
+	private Integer percentile = null;
 
 	@Option(name = "-h", aliases = { "--help" }, usage = "print this message")
 	private boolean help = false;
@@ -105,6 +108,7 @@ public class McCSplat {
 		validatePath(follows);
 		validatePath(data);
 		validateMode(mode);
+		validatePercentile(percentile);
 	}
 
 	/**
@@ -132,6 +136,20 @@ public class McCSplat {
 							+ " and " + Mode.MIN_VALUE);
 	}
 
+	/**
+	 * Checks if the percentile provided is valid
+	 * @param percentile Percentile to evaluate in the "Percentile Flavor"
+	 * @throws IllegalArgumentException
+	 */
+	private void validatePercentile(Integer percentile) throws IllegalArgumentException {
+		if(mode != null && mode == Mode.PERCENTILE){	
+			if (percentile==null || percentile < 0 && percentile > 100)
+				throw new IllegalArgumentException(
+						"Percentile has to be an Integer between 0 to 100");
+		}
+	}
+	
+	
 	/**
 	 * Analyzes the input arguments, and executes the job
 	 * 

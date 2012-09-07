@@ -15,8 +15,6 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.weso.utils.Mode;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 /**
  * 
  * @author César Luis Alvargonzález
@@ -26,10 +24,14 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  */
 public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 
+	private final static String PROPERTY_INDICATOR = "#";
+	private final static String PROPERTY_SEPARATOR = ":";
+	
 	private String currentPath = null;
 	private Context context = null;
 	private Map<String, Double> sinkProperties = null;
 	private int mode = Mode.PLAIN_VANILLA;
+	private int percentile = 100;
 	
 	@Override
 	public void reduce(Text key, Iterable<Text> values, Context context)
@@ -54,7 +56,8 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 				result = processPercentile(properties);
 				break;
 		}
-		context.write(key, result);
+		if(!result.toString().equals("UNDEFINED"))
+			context.write(key, result);
 	}
 	
 	/**
@@ -64,6 +67,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	private void initializeReducer() throws IOException {
 		this.currentPath = context.getConfiguration().get("executionPath");
 		this.mode = context.getConfiguration().getInt("mode", Mode.PLAIN_VANILLA);
+		this.percentile = context.getConfiguration().getInt("percentile", 70);
 		loadSinkValues();
 	}
 	
@@ -76,7 +80,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 		Map<String, Double> properties = new HashMap<String, Double>();
 		String[] property = null;
 		for(Text text : values){
-			property = text.toString().split(":");
+			property = text.toString().split(PROPERTY_SEPARATOR);
 			if(property.length>=2)
 				properties.put(property[1], new Double(property[0]));
 		}
@@ -98,9 +102,9 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 				fs.open(data)));
 		String line = null;
 		while ((line = br.readLine()) != null) {
-			String[] phrases = line.split("#");
+			String[] phrases = line.split(PROPERTY_INDICATOR);
 			for(int i = 1; i < phrases.length; i++){
-				String[] property = phrases[i].split(":");
+				String[] property = phrases[i].split(PROPERTY_SEPARATOR);
 				sinkProperties.put(property[1], new Double(property[0]));
 			}
 		}
@@ -120,6 +124,8 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 			if(biggerProperty == null || current.getValue()>biggerProperty.getValue())
 				biggerProperty = current;
 		}
+		if(biggerProperty==null)
+			return new Text("UNDEFINED");
 		return new Text(biggerProperty.getKey());
 
 	}
@@ -131,8 +137,18 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	 * @return Property name selected
 	 */
 	private Text processSinkAbsolute(Map<String, Double> properties) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException();
+		Iterator<Entry<String, Double>> it = properties.entrySet().iterator();
+		Entry<String, Double> biggerProperty = null;
+		while(it.hasNext()){
+			Entry<String, Double> current = it.next();
+			if((biggerProperty == null || current.getValue() > biggerProperty.getValue())
+				&&	current.getValue() > 
+			sinkProperties.get(current.getKey()))
+				biggerProperty = current;
+		}
+		if(biggerProperty==null)
+			return new Text("UNDEFINED");
+		return new Text(biggerProperty.getKey());
 	}
 	
 	/**
@@ -142,8 +158,14 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	 * @return Property name selected
 	 */
 	private Text processSinkRelative(Map<String, Double> properties) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException();
+		Iterator<Entry<String, Double>> it = properties.entrySet().iterator();
+		Entry<String, Double> biggerProperty = null;
+		while(it.hasNext()){
+			Entry<String, Double> current = it.next();
+			if(biggerProperty == null || isPositiveDifference(current,biggerProperty))
+				biggerProperty = current;
+		}
+		return new Text(biggerProperty.getKey());
 	}
 	
 	/**
@@ -152,8 +174,33 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	 * @return Property name selected
 	 */
 	private Text processPercentile(Map<String, Double> properties) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException();
+		Iterator<Entry<String, Double>> it = properties.entrySet().iterator();
+		Entry<String, Double> biggerProperty = null;
+		while(it.hasNext()){
+			Entry<String, Double> current = it.next();
+			if((biggerProperty == null  || current.getValue() > biggerProperty.getValue())
+					&& current.getValue() > percentile) 
+				biggerProperty = current;
+		}
+		if(biggerProperty==null)
+			return new Text("UNDEFINED");
+		return new Text(biggerProperty.getKey());
+	}
+
+	/**
+	 * Compares if the current property has bigger positive difference then the current one
+	 * @param biggerProperty Entry with the bigger positive difference
+	 * @param current Entry with the actual property to compare
+	 * @return true If the current property has bigger positive difference then the current one
+	 * @return false if the current property has not bigger positive difference then the current one
+	 */
+	private boolean isPositiveDifference(Entry<String, Double> current, 
+			Entry<String, Double> biggerProperty) {
+		Double currentDifference =  current.getValue() - sinkProperties.get(current.getKey());
+		Double biggerDifference = biggerProperty.getValue() - sinkProperties.get(biggerProperty.getKey());
+		if(currentDifference > 0 && currentDifference > biggerDifference)
+			return true;
+		return false;
 	}
 
 }
