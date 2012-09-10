@@ -241,7 +241,7 @@ public class McCSplat {
 		Job job = null;
 		conf = new Configuration();
 		conf.setInt("mode", getMode());
-		conf.setStrings("executionPath", executionPath);
+		conf.set("executionPath", executionPath);
 		job = new Job(conf);
 		job.setJobName("McCSPlat-Finalize");
 		job.setJarByClass(this.getClass());

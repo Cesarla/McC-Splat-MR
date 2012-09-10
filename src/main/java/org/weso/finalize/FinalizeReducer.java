@@ -24,6 +24,7 @@ import org.weso.utils.Mode;
  */
 public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 
+	private static String VERIFIED = "@V";
 	private final static String PROPERTY_INDICATOR = "#";
 	private final static String PROPERTY_SEPARATOR = ":";
 	
@@ -36,7 +37,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	@Override
 	public void reduce(Text key, Iterable<Text> values, Context context)
 			throws IOException, InterruptedException {
-		if(currentPath==null){
+		if(sinkProperties==null){
 			this.context = context;
 			initializeReducer();
 		}
@@ -68,7 +69,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 		this.currentPath = context.getConfiguration().get("executionPath");
 		this.mode = context.getConfiguration().getInt("mode", Mode.PLAIN_VANILLA);
 		this.percentile = context.getConfiguration().getInt("percentile", 70);
-		loadSinkValues();
+		this.sinkProperties = loadSinkValues();
 	}
 	
 	/**
@@ -95,7 +96,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	 */
 	private Map<String, Double> loadSinkValues()
 			throws IOException {
-		this.sinkProperties = new HashMap<String, Double>();
+		Map<String, Double> sinkProperties = new HashMap<String, Double>();
 		FileSystem fs = FileSystem.get(new Configuration());
 		Path data = new Path(currentPath+"/sink/part-r-00000");
 		BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -142,8 +143,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 		while(it.hasNext()){
 			Entry<String, Double> current = it.next();
 			if((biggerProperty == null || current.getValue() > biggerProperty.getValue())
-				&&	current.getValue() > 
-			sinkProperties.get(current.getKey()))
+				&&	current.getValue() > sinkProperties.get(getPropertyName(current.getKey())))
 				biggerProperty = current;
 		}
 		if(biggerProperty==null)
@@ -186,6 +186,12 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 			return new Text("UNDEFINED");
 		return new Text(biggerProperty.getKey());
 	}
+	
+	private String getPropertyName(String property){
+		if(property.contains(VERIFIED))
+			return property.substring(0, property.length()-2);
+		return property;
+	}
 
 	/**
 	 * Compares if the current property has bigger positive difference then the current one
@@ -196,7 +202,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	 */
 	private boolean isPositiveDifference(Entry<String, Double> current, 
 			Entry<String, Double> biggerProperty) {
-		Double currentDifference =  current.getValue() - sinkProperties.get(current.getKey());
+		Double currentDifference =  current.getValue() - sinkProperties.get(getPropertyName(current.getKey()));
 		Double biggerDifference = biggerProperty.getValue() - sinkProperties.get(biggerProperty.getKey());
 		if(currentDifference > 0 && currentDifference > biggerDifference)
 			return true;
