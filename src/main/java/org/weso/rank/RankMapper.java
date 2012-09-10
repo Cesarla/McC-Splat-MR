@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.weso.utils.Format;
 
 /**
  * 
@@ -17,8 +18,6 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 	private final static String FOLLOWEE = "0";
 	private final static String FOLLOWER = "1";
-	private final static String VERIFIED = "@V";
-	private final static String PROPERTY_INDICATOR = "#";
 	
 	private final static int VALID_LENGTH = 2;
 
@@ -97,20 +96,20 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @return User name of the phrase
 	 */
 	private String getUserName(String phrase) {
-		String chunks[] = phrase.split(PROPERTY_INDICATOR);
+		String chunks[] = phrase.split(Format.PROPERTY_INDICATOR);
 		return chunks[0];
 	}
 
 	/**
-	 * Checks if a property is a verified property
+	 * Checks if a property is a Format.VERIFIED property
 	 * 
 	 * @param phrases
 	 *            Array with the different user's properties
-	 * @return true If the property is verified
-	 * @return false If the property is not verified
+	 * @return true If the property is Format.VERIFIED
+	 * @return false If the property is not Format.VERIFIED
 	 */
 	private boolean isVerified(String phrase) {
-		return phrase.substring(phrase.length() - 2).equals(VERIFIED);
+		return phrase.substring(phrase.length() - 2).equals(Format.VERIFIED);
 	}
 
 }

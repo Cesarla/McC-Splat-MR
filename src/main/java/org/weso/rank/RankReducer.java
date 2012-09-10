@@ -13,6 +13,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.weso.utils.Format;
 
 /**
  * 
@@ -26,9 +27,6 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	private final static char FOLLOWEE = '0';
 	private final static char FOLLOWER = '1';
 	
-	private final static String VERIFIED = "@V";
-	private final static String PROPERTY_INDICATOR = "#";
-	private final static String PROPERTY_SEPARATOR = ":";
 	private final static String UNDEFINED = "#100.0000:UNDEFINED";
 	
 	private Set<String> followees = new HashSet<String>();
@@ -94,7 +92,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 		if(values.size()>0){
 			while (it.hasNext()) {
 				java.util.Map.Entry<String, Double> pair = it.next();
-				out.append(PROPERTY_INDICATOR).append((Double)pair.getValue()/followeesSize).append(PROPERTY_SEPARATOR).append(pair.getKey());
+				out.append(Format.PROPERTY_INDICATOR).append((Double)pair.getValue()/followeesSize).append(Format.PROPERTY_SEPARATOR).append(pair.getKey());
 			}
 		}else{
 			out.append(UNDEFINED);
@@ -128,7 +126,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 			 it = getValues(followee).entrySet().iterator();
 			 while (it.hasNext()) {
 				 java.util.Map.Entry<String, Double> pairs = it.next();
-				 if(pairs.getKey().contains(VERIFIED)){
+				 if(pairs.getKey().contains(Format.VERIFIED)){
 					 values.clear();
 					 values.put(pairs.getKey(), pairs.getValue());
 					 followeesSize = 1;
@@ -151,13 +149,13 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	private Map<String,Double> getValues(String user){
 		
 		Map<String,Double> map = new HashMap<String, Double>();	
-		String chunks[] =  user.split(PROPERTY_INDICATOR);
+		String chunks[] =  user.split(Format.PROPERTY_INDICATOR);
 		
 		for(int i=0;i<chunks.length;i++){
-			String aux[] =  chunks[i].split(PROPERTY_SEPARATOR);
+			String aux[] =  chunks[i].split(Format.PROPERTY_SEPARATOR);
 			if(aux.length>=2){
 				String name = aux[1];
-				if(name.contains(VERIFIED)){
+				if(name.contains(Format.VERIFIED)){
 					if(currentUser.equals(getUserName(user))){
 						map.clear();
 						map.put(name, new Double(aux[0]));
@@ -178,7 +176,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	 * @return User name of an user
 	 */
 	private String getUserName(String user){
-		String chunks[] =  user.split(PROPERTY_INDICATOR);
+		String chunks[] =  user.split(Format.PROPERTY_INDICATOR);
 		return chunks[0];
 	}
 	

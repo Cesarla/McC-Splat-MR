@@ -8,6 +8,7 @@ import java.util.Set;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.weso.utils.Format;
 
 /**
  * 
@@ -17,8 +18,6 @@ import org.apache.hadoop.mapreduce.Mapper;
  * 
  */
 public class FinalizeMapper extends Mapper<LongWritable, Text, Text, Text> {
-	
-	private final static String PROPERTY_INDICATOR = "#";
 	
 	@Override
 	public void map(LongWritable key, Text value, Context context)
@@ -37,7 +36,7 @@ public class FinalizeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @return Map with user properties name and properties values.
 	 */
 	private Set<String> getProperties(String user){
-		String chunks[] =  user.split(PROPERTY_INDICATOR);
+		String chunks[] =  user.split(Format.PROPERTY_INDICATOR);
 		return new HashSet<String>(Arrays.asList(chunks));
 	}
 	
@@ -47,7 +46,7 @@ public class FinalizeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @return User name of an user
 	 */
 	private String getUserName(String user){
-		String chunks[] =  user.split(PROPERTY_INDICATOR);
+		String chunks[] =  user.split(Format.PROPERTY_INDICATOR);
 		return chunks[0];
 	}
 }

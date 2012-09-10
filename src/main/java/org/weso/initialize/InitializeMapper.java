@@ -13,6 +13,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.weso.utils.Format;
 
 /**
  * 
@@ -22,8 +23,7 @@ import org.apache.hadoop.mapreduce.Mapper;
  * 
  */
 public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
-
-	private static String VERIFIED = "@V";
+	
 	private static String UNDEFINED = "UNDEFINED";
 	private static String NEW_DATA = "#100.0000:";
 
@@ -83,7 +83,7 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 		Text user = null;
 		String type = getProperty(userName);
 		if (!type.equals(UNDEFINED)) {
-			user = new Text(userName + NEW_DATA + type + VERIFIED);
+			user = new Text(userName + NEW_DATA + type + Format.VERIFIED);
 		} else {
 			user = new Text(userName + NEW_DATA + type);
 		}

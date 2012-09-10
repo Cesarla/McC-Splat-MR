@@ -13,6 +13,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.weso.utils.Format;
 import org.weso.utils.Mode;
 
 /**
@@ -23,10 +24,6 @@ import org.weso.utils.Mode;
  * 
  */
 public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
-
-	private static String VERIFIED = "@V";
-	private final static String PROPERTY_INDICATOR = "#";
-	private final static String PROPERTY_SEPARATOR = ":";
 	
 	private String currentPath = null;
 	private Context context = null;
@@ -81,7 +78,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 		Map<String, Double> properties = new HashMap<String, Double>();
 		String[] property = null;
 		for(Text text : values){
-			property = text.toString().split(PROPERTY_SEPARATOR);
+			property = text.toString().split(Format.PROPERTY_SEPARATOR);
 			if(property.length>=2)
 				properties.put(property[1], new Double(property[0]));
 		}
@@ -89,9 +86,9 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	}
 	
 	/**
-	 * Read the verified data file and load it into a Map.
+	 * Read the Format.VERIFIED data file and load it into a Map.
 	 * @param path Path of the defined data file.
-	 * @return A map of user names as keys and verified properties as values
+	 * @return A map of user names as keys and Format.VERIFIED properties as values
 	 * @throws IOException
 	 */
 	private Map<String, Double> loadSinkValues()
@@ -103,9 +100,9 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 				fs.open(data)));
 		String line = null;
 		while ((line = br.readLine()) != null) {
-			String[] phrases = line.split(PROPERTY_INDICATOR);
+			String[] phrases = line.split(Format.PROPERTY_INDICATOR);
 			for(int i = 1; i < phrases.length; i++){
-				String[] property = phrases[i].split(PROPERTY_SEPARATOR);
+				String[] property = phrases[i].split(Format.PROPERTY_SEPARATOR);
 				sinkProperties.put(property[1], new Double(property[0]));
 			}
 		}
@@ -188,7 +185,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	}
 	
 	private String getPropertyName(String property){
-		if(property.contains(VERIFIED))
+		if(property.contains(Format.VERIFIED))
 			return property.substring(0, property.length()-2);
 		return property;
 	}
