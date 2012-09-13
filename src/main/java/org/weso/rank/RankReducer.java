@@ -24,19 +24,19 @@ import org.weso.utils.Format;
  */
 public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	
-	private final static char FOLLOWEE = '0';
-	private final static char FOLLOWER = '1';
+	protected final static char FOLLOWEE = '0';
+	protected final static char FOLLOWER = '1';
 	
-	private final static String UNDEFINED = "#100.0000:UNDEFINED";
+	protected final static String UNDEFINED = "#100.0000:UNDEFINED";
 	
-	private Set<String> followees = new HashSet<String>();
-	private Set<String> followers = new HashSet<String>();
+	protected Set<String> followees = new HashSet<String>();
+	protected Set<String> followers = new HashSet<String>();
 	
-	private int followeesSize = 0;
-	private Text result = null;
-	private String currentUser = null;
-	private String executionPath = null;
-	private Context context = null;
+	protected int followeesSize = 0;
+	protected Text result = null;
+	protected String currentUser = null;
+	protected String executionPath = null;
+	protected Context context = null;
 	
 	@Override
 	public void reduce(Text key, Iterable<Text> values, Context context)
@@ -53,7 +53,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	 * and setting the current user.
 	 * @param key Current User
 	 */
-	private void resetReducer(Text key) {
+	protected void resetReducer(Text key) {
 		this.executionPath = context.getConfiguration().get("executionPath");
 		followees.clear();
 		followers.clear();
@@ -64,7 +64,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	 * Loads the followees and followers in its set.
 	 * @param values Iterable of followers and followees of the current user.
 	 */
-	private void loadUsers(Iterable<Text> values) {
+	protected void loadUsers(Iterable<Text> values) {
 		String user;
 		for (Text value : values) {
 			user = value.toString();
@@ -84,7 +84,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	/**
 	 * Calculate the rank for the current user.
 	 */
-	private void calculateRank(){
+	protected void calculateRank(){
 		Map<String, Double> values = loadValues();
 		Iterator<java.util.Map.Entry<String, Double>> it = values.entrySet().iterator();
 		StringBuilder out = new StringBuilder(currentUser);
@@ -106,7 +106,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	private void writeResults() throws IOException,
+	protected void writeResults() throws IOException,
 	InterruptedException {
 		for(String follower : followers){
 			context.write(result, new Text(follower));
@@ -119,7 +119,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	 * Loads current user properties into a Map
 	 * @return Map with user properties name and properties values.
 	 */
-	private Map<String, Double> loadValues() {
+	protected Map<String, Double> loadValues() {
 		Map<String, Double> values = new HashMap<String, Double>();
 		Iterator<java.util.Map.Entry<String, Double>> it;
 		for(String followee : followees){
@@ -146,7 +146,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	 * Loads current user property:value into a Map
 	 * @return Map with user properties name and properties values.
 	 */
-	private Map<String,Double> getValues(String user){
+	protected Map<String,Double> getValues(String user){
 		
 		Map<String,Double> map = new HashMap<String, Double>();	
 		String chunks[] =  user.split(Format.PROPERTY_INDICATOR);
@@ -175,7 +175,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	 * @param user User to find his user name 
 	 * @return User name of an user
 	 */
-	private String getUserName(String user){
+	protected String getUserName(String user){
 		String chunks[] =  user.split(Format.PROPERTY_INDICATOR);
 		return chunks[0];
 	}
@@ -185,7 +185,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	 * @param data Data of the current sink node (user name with properties)
 	 * @throws IOException
 	 */
-	private void saveSinkData(String data) throws IOException{
+	protected void saveSinkData(String data) throws IOException{
 		FileSystem fs = FileSystem.get(new Configuration());
 		Path path = new Path(executionPath+"/sink/part-r-00000");
 		if(fs.exists(path)){
