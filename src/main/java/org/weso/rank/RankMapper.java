@@ -22,6 +22,9 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 	private final static int VALID_LENGTH = 2;
 
 	private Context context;
+	
+	private Text resultKey = new Text();
+	private Text resultValue = new Text();
 
 	@Override
 	public void map(LongWritable key, Text value, Context context)
@@ -69,7 +72,9 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 	private void writeFollower(String user, String follower)
 			throws IOException, InterruptedException {
 		StringBuilder out = new StringBuilder(FOLLOWER).append(follower);
-		context.write(new Text(user), new Text(out.toString()));
+		resultKey.set(user);
+		resultValue.set(out.toString());
+		context.write(resultKey, resultValue);
 	}
 
 	/**
@@ -85,7 +90,9 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 	private void writeFollowee(String user, String followee)
 			throws IOException, InterruptedException {
 		StringBuilder out = new StringBuilder(FOLLOWEE).append(followee);
-		context.write(new Text(user), new Text(out.toString()));
+		resultKey.set(user);
+		resultValue.set(out.toString());
+		context.write(resultKey, resultValue);
 	}
 
 	/**

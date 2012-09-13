@@ -12,4 +12,5 @@ public class Format {
 	public static final String VERIFIED = "@V";
 	public static final String PROPERTY_INDICATOR = "#";
 	public static final String PROPERTY_SEPARATOR = ":";
+	public static final String UNDEFINED = "UNDEF";
 }

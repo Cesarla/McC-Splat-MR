@@ -29,7 +29,9 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	private Context context = null;
 	private Map<String, Double> sinkProperties = null;
 	private int mode = Mode.PLAIN_VANILLA;
-	private int percentile = 100;
+	private int percentile = 0;
+	
+	private Text resultValue = new Text();
 	
 	@Override
 	public void reduce(Text key, Iterable<Text> values, Context context)
@@ -39,23 +41,22 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 			initializeReducer();
 		}
 		Map<String, Double> properties = processValues(values);
-		Text result = null;
 		switch(mode){
 			case Mode.PLAIN_VANILLA:
-				result = processPlainVanilla(properties);
+				processPlainVanilla(properties);
 				break;
 			case Mode.SINK_ABSOLUTE:
-				result = processSinkAbsolute(properties);
+				processSinkAbsolute(properties);
 				break;
 			case Mode.SINK_RELATIVE:
-				result = processSinkRelative(properties);
+				processSinkRelative(properties);
 				break;
 			case Mode.PERCENTILE:
-				result = processPercentile(properties);
+				processPercentile(properties);
 				break;
 		}
-		if(!result.toString().equals("UNDEFINED"))
-			context.write(key, result);
+		if(!resultValue.toString().equals(Format.UNDEFINED))
+			context.write(key, resultValue);
 	}
 	
 	/**
@@ -112,9 +113,8 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	/**
 	 * Selects the property with the bigger value
 	 * @param properties Map with property names as key and property values as value
-	 * @return Property name selected
 	 */
-	private Text processPlainVanilla(Map<String, Double> properties) {
+	private void processPlainVanilla(Map<String, Double> properties) {
 		Iterator<Entry<String, Double>> it = properties.entrySet().iterator();
 		Entry<String, Double> biggerProperty = null;
 		while(it.hasNext()){
@@ -122,9 +122,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 			if(biggerProperty == null || current.getValue()>biggerProperty.getValue())
 				biggerProperty = current;
 		}
-		if(biggerProperty==null)
-			return new Text("UNDEFINED");
-		return new Text(biggerProperty.getKey());
+		setResult(biggerProperty);
 
 	}
 	
@@ -132,9 +130,8 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	 * Selects the property with the bigger value and above the corresponding
 	 * property in the sink node
 	 * @param properties Map with property names as key and property values as value
-	 * @return Property name selected
 	 */
-	private Text processSinkAbsolute(Map<String, Double> properties) {
+	private void processSinkAbsolute(Map<String, Double> properties) {
 		Iterator<Entry<String, Double>> it = properties.entrySet().iterator();
 		Entry<String, Double> biggerProperty = null;
 		while(it.hasNext()){
@@ -143,18 +140,15 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 				&&	current.getValue() > sinkProperties.get(getPropertyName(current.getKey())))
 				biggerProperty = current;
 		}
-		if(biggerProperty==null)
-			return new Text("UNDEFINED");
-		return new Text(biggerProperty.getKey());
+		setResult(biggerProperty);
 	}
 	
 	/**
 	 * Selects the property with the highest positive difference against the corresponding 
 	 * weight within the sink node
 	 * @param properties Map with property names as key and property values as value
-	 * @return Property name selected
 	 */
-	private Text processSinkRelative(Map<String, Double> properties) {
+	private void processSinkRelative(Map<String, Double> properties) {
 		Iterator<Entry<String, Double>> it = properties.entrySet().iterator();
 		Entry<String, Double> biggerProperty = null;
 		while(it.hasNext()){
@@ -162,15 +156,14 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 			if(biggerProperty == null || isPositiveDifference(current,biggerProperty))
 				biggerProperty = current;
 		}
-		return new Text(biggerProperty.getKey());
+		setResult(biggerProperty);
 	}
 	
 	/**
 	 * Selects the property with  highest percentile –according to the labeled individuals
 	 * @param properties Map with property names as key and property values as value
-	 * @return Property name selected
 	 */
-	private Text processPercentile(Map<String, Double> properties) {
+	private void processPercentile(Map<String, Double> properties) {
 		Iterator<Entry<String, Double>> it = properties.entrySet().iterator();
 		Entry<String, Double> biggerProperty = null;
 		while(it.hasNext()){
@@ -179,11 +172,25 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 					&& current.getValue() > percentile) 
 				biggerProperty = current;
 		}
-		if(biggerProperty==null)
-			return new Text("UNDEFINED");
-		return new Text(biggerProperty.getKey());
+		setResult(biggerProperty);
 	}
 	
+	/**
+	 * Sets the result, if bigger property is null, sets the result to undefined.
+	 * @param biggerProperty Property with the bigger value for a determined mode
+	 */
+	private void setResult(Entry<String, Double> biggerProperty) {
+		if(biggerProperty==null)
+			resultValue.set(Format.UNDEFINED);
+		else
+			resultValue.set(biggerProperty.getKey());
+	}
+	
+	/**
+	 * 
+	 * @param property
+	 * @return
+	 */
 	private String getPropertyName(String property){
 		if(property.contains(Format.VERIFIED))
 			return property.substring(0, property.length()-2);

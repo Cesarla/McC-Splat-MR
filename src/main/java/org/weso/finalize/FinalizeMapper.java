@@ -19,16 +19,19 @@ import org.weso.utils.Format;
  */
 public class FinalizeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	
+	private Text resultKey = new Text();
+	private Text resultValue = new Text();
+	
 	@Override
 	public void map(LongWritable key, Text value, Context context)
 			throws IOException, InterruptedException {
 		String line = value.toString();
 		String[] phrases = line.split("\t");
-		Text userName = new Text(getUserName(phrases[0]));
-		for(String property : getProperties(phrases[0])){
-			context.write(new Text(userName), new Text(property));
+		resultKey.set(getUserName(phrases[0]));
+		for(String propertyRaw : getProperties(phrases[0])){
+			resultValue.set(propertyRaw);
+			context.write(resultKey, resultValue);
 		}
-		
 	}
 	
 	/**

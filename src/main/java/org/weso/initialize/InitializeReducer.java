@@ -16,7 +16,8 @@ import org.apache.hadoop.mapreduce.Reducer;
  */
 public class InitializeReducer extends Reducer<Text, Text, Text, Text> {
 
-	private Set<String> followers = new HashSet<String>();
+	private Set<String> followee = new HashSet<String>();
+	private Text resultValue = new Text();
 
 	@Override
 	public void reduce(Text key, Iterable<Text> values, Context context)
@@ -33,24 +34,25 @@ public class InitializeReducer extends Reducer<Text, Text, Text, Text> {
 	private void filterValues(Iterable<Text> values) throws IllegalArgumentException{
 		if(values == null)
 			throw new IllegalArgumentException("Values could not be a null value");
-		followers.clear();
+		followee.clear();
 		for (Text value : values) {
-			followers.add(value.toString());
+			followee.add(value.toString());
 		}
 	}
 
 	/**
 	 * Write the result in the Hadoop Output.
 	 * 
-	 * @param key  User name of the current user.
+	 * @param currentUserName  User name of the current user.
 	 * @param context The Context passed on to the Reducer implementations.
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	private void writeResult(Text key, Context context) throws IOException,
+	private void writeResult(Text currentUserName, Context context) throws IOException,
 			InterruptedException {
-		for (String follower : followers) {
-			context.write(key, new Text(follower));
+		for (String followeeRaw : followee) {
+			resultValue.set(followeeRaw);
+			context.write(currentUserName, resultValue);
 		}
 	}
 

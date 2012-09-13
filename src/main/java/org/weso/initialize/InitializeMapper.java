@@ -24,16 +24,18 @@ import org.weso.utils.Format;
  */
 public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	
-	private static String UNDEFINED = "UNDEFINED";
+	private static String UNDEFINED = "UNDEF";
 	private static String NEW_DATA = "#100.0000:";
 
 	private static Text SINK = new Text("sink");
-	private static Text NOBODY = new Text("nobody");
-
+	
 	private Pattern patternUndefined = Pattern
 			.compile("^[a-zA-Z0-9_/.]{1,15}.*");
 
 	private Map<String, String> verifiedData = null;
+	
+	private Text resultKey = new Text();
+	private Text resultValue = new Text();
 
 	@Override
 	public void map(LongWritable key, Text value, Context context)
@@ -50,12 +52,13 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 			return;
 
 		if (patternUndefined.matcher(line).find()) {
-			Text user = generateUser(phrases[0]);
-			context.write(user, new Text(phrases[1]));
-			context.write(user, SINK);
+			resultKey.set(generateUser(phrases[0]));
+			resultValue.set(phrases[1]);
+			context.write(resultKey, resultValue);
+			context.write(resultKey, SINK);
 
-			user = generateUser(phrases[1]);
-			context.write(user, SINK);
+			resultKey.set(generateUser(phrases[1]));
+			context.write(resultKey, SINK);
 		}else{
 			throw new IOException("Bad Formed input files, key:" + key + " line:\""
 					+ line + "\" " + phrases.length);
@@ -71,23 +74,25 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	private void initializeMapper(Context context) throws IOException,
 			InterruptedException {
 		this.verifiedData = readVerifiedData(getVerifiedDataPath(context));
-		Text user = generateUser(SINK.toString());
-		context.write(user, NOBODY);
+		
+		resultKey.set(generateUser(SINK.toString()));
+		resultValue.set("nobody");
+		context.write(resultKey, resultValue);
 	}
 
 	/**
 	 * Generates a user "chunk" for a specific user name.
 	 * @param userName User name of the user "chunk"
+	 * @return User "chunk" for a specific user name.
 	 */
-	private Text generateUser(String userName) {
-		Text user = null;
+	private String generateUser(String userName) {
 		String type = getProperty(userName);
+		StringBuilder user = new StringBuilder(userName).
+				append(NEW_DATA).append(type);
 		if (!type.equals(UNDEFINED)) {
-			user = new Text(userName + NEW_DATA + type + Format.VERIFIED);
-		} else {
-			user = new Text(userName + NEW_DATA + type);
+			user.append(Format.VERIFIED);
 		}
-		return user;
+		return user.toString();
 	}
 
 	/**
@@ -112,8 +117,7 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 */
 	private String getVerifiedDataPath(Context context) {
 		Configuration conf = context.getConfiguration();
-		String path = conf.get("verifiedData");
-		return path;
+		return conf.get("verifiedData");
 	}
 
 	/**

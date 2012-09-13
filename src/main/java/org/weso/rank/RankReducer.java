@@ -27,16 +27,18 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	private final static char FOLLOWEE = '0';
 	private final static char FOLLOWER = '1';
 	
-	private final static String UNDEFINED = "#100.0000:UNDEFINED";
+	private final static String UNDEFINED = "#100.0000:UNDEF";
 	
 	private Set<String> followees = new HashSet<String>();
 	private Set<String> followers = new HashSet<String>();
 	
 	private int followeesSize = 0;
-	private Text result = null;
 	private String currentUser = null;
 	private String executionPath = null;
 	private Context context = null;
+	
+	private Text resultKey = new Text();
+	private Text resultValue = new Text();
 	
 	@Override
 	public void reduce(Text key, Iterable<Text> values, Context context)
@@ -98,7 +100,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 			out.append(UNDEFINED);
 		}
 		 
-		result = new Text(out.toString());
+		resultKey.set(out.toString());
 	}
 	
 	/**
@@ -109,10 +111,11 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	private void writeResults() throws IOException,
 	InterruptedException {
 		for(String follower : followers){
-			context.write(result, new Text(follower));
+			resultValue.set(follower);
+			context.write(resultKey, resultValue);
 		}
 		if(currentUser.equals("sink"))
-			saveSinkData(result.toString());
+			saveSinkData(resultKey.toString());
 	}
 
 	/**
@@ -161,7 +164,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 						map.put(name, new Double(aux[0]));
 						return map;
 					}else{
-						name = name.substring(0,name.length()-2);
+						name = name.substring(0,name.length()-Format.VERIFIED.length());
 					}
 				}
 				map.put(name, new Double(aux[0]));
