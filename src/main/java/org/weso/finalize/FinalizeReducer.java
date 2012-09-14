@@ -25,13 +25,13 @@ import org.weso.utils.Mode;
  */
 public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	
-	private String currentPath = null;
-	private Context context = null;
-	private Map<String, Double> sinkProperties = null;
-	private int mode = Mode.PLAIN_VANILLA;
-	private int percentile = 0;
+	protected String currentPath = null;
+	protected Context context = null;
+	protected Map<String, Double> sinkProperties = null;
+	protected int mode = Mode.PLAIN_VANILLA;
+	protected int percentile = 0;
 	
-	private Text resultValue = new Text();
+	protected Text resultValue = new Text();
 	
 	@Override
 	public void reduce(Text key, Iterable<Text> values, Context context)
@@ -63,7 +63,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	 * Initialize the reducer
 	 * @throws IOException
 	 */
-	private void initializeReducer() throws IOException {
+	protected void initializeReducer() throws IOException {
 		this.currentPath = context.getConfiguration().get("executionPath");
 		this.mode = context.getConfiguration().getInt("mode", Mode.PLAIN_VANILLA);
 		this.percentile = context.getConfiguration().getInt("percentile", 70);
@@ -75,13 +75,12 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	 * @param values Set of Text containing the property name mixed with the value
 	 * @return Map with property names as key and property values as value
 	 */
-	private Map<String, Double> processValues(Iterable<Text> values){
+	protected Map<String, Double> processValues(Iterable<Text> values){
 		Map<String, Double> properties = new HashMap<String, Double>();
 		String[] property = null;
 		for(Text text : values){
 			property = text.toString().split(Format.PROPERTY_SEPARATOR);
-			if(property.length>=2)
-				properties.put(property[1], new Double(property[0]));
+			properties.put(property[1], new Double(property[0]));
 		}
 		return properties;
 	}
@@ -92,7 +91,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	 * @return A map of user names as keys and Format.VERIFIED properties as values
 	 * @throws IOException
 	 */
-	private Map<String, Double> loadSinkValues()
+	protected Map<String, Double> loadSinkValues()
 			throws IOException {
 		Map<String, Double> sinkProperties = new HashMap<String, Double>();
 		FileSystem fs = FileSystem.get(new Configuration());
@@ -114,7 +113,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	 * Selects the property with the bigger value
 	 * @param properties Map with property names as key and property values as value
 	 */
-	private void processPlainVanilla(Map<String, Double> properties) {
+	protected void processPlainVanilla(Map<String, Double> properties) {
 		Iterator<Entry<String, Double>> it = properties.entrySet().iterator();
 		Entry<String, Double> biggerProperty = null;
 		while(it.hasNext()){
@@ -131,7 +130,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	 * property in the sink node
 	 * @param properties Map with property names as key and property values as value
 	 */
-	private void processSinkAbsolute(Map<String, Double> properties) {
+	protected void processSinkAbsolute(Map<String, Double> properties) {
 		Iterator<Entry<String, Double>> it = properties.entrySet().iterator();
 		Entry<String, Double> biggerProperty = null;
 		while(it.hasNext()){
@@ -148,7 +147,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	 * weight within the sink node
 	 * @param properties Map with property names as key and property values as value
 	 */
-	private void processSinkRelative(Map<String, Double> properties) {
+	protected void processSinkRelative(Map<String, Double> properties) {
 		Iterator<Entry<String, Double>> it = properties.entrySet().iterator();
 		Entry<String, Double> biggerProperty = null;
 		while(it.hasNext()){
@@ -163,7 +162,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	 * Selects the property with  highest percentile –according to the labeled individuals
 	 * @param properties Map with property names as key and property values as value
 	 */
-	private void processPercentile(Map<String, Double> properties) {
+	protected void processPercentile(Map<String, Double> properties) {
 		Iterator<Entry<String, Double>> it = properties.entrySet().iterator();
 		Entry<String, Double> biggerProperty = null;
 		while(it.hasNext()){
@@ -179,7 +178,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	 * Sets the result, if bigger property is null, sets the result to undefined.
 	 * @param biggerProperty Property with the bigger value for a determined mode
 	 */
-	private void setResult(Entry<String, Double> biggerProperty) {
+	protected void setResult(Entry<String, Double> biggerProperty) {
 		if(biggerProperty==null)
 			resultValue.set(Format.UNDEFINED);
 		else
@@ -191,7 +190,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	 * @param property
 	 * @return
 	 */
-	private String getPropertyName(String property){
+	protected String getPropertyName(String property){
 		if(property.contains(Format.VERIFIED))
 			return property.substring(0, property.length()-2);
 		return property;
@@ -204,7 +203,7 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 	 * @return true If the current property has bigger positive difference then the current one
 	 * @return false if the current property has not bigger positive difference then the current one
 	 */
-	private boolean isPositiveDifference(Entry<String, Double> current, 
+	protected boolean isPositiveDifference(Entry<String, Double> current, 
 			Entry<String, Double> biggerProperty) {
 		Double currentDifference =  current.getValue() - sinkProperties.get(getPropertyName(current.getKey()));
 		Double biggerDifference = biggerProperty.getValue() - sinkProperties.get(biggerProperty.getKey());

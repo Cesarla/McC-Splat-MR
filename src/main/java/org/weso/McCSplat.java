@@ -45,7 +45,7 @@ public class McCSplat {
 			+ Mode.PLAIN_VANILLA + ", \"Sink Absolute\"=" + Mode.SINK_ABSOLUTE
 			+ ", \"Sink Relative\"=" + Mode.SINK_RELATIVE + ", \"Percentile\"="
 			+ Mode.PERCENTILE, metaVar = "mode <Integer>")
-	private Integer mode = null;
+	protected Integer mode = null;
 	
 	@Argument(required = false, index = 3, usage = "Percentile", metaVar = "percentile <Integer>")
 	private Integer percentile = null;
@@ -261,7 +261,7 @@ public class McCSplat {
 	 * @return McCSplat mode
 	 * @throws CmdLineException
 	 */
-	private int getMode() throws CmdLineException {
+	protected int getMode() throws CmdLineException {
 		if (mode == null)
 			return Mode.PLAIN_VANILLA;
 		return mode;

@@ -16,15 +16,15 @@ import org.weso.utils.Format;
  */
 public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 
-	private final static String FOLLOWEE = "0";
-	private final static String FOLLOWER = "1";
+	protected final static String FOLLOWEE = "0";
+	protected final static String FOLLOWER = "1";
 	
-	private final static int VALID_LENGTH = 2;
+	protected final static int VALID_LENGTH = 2;
 
-	private Context context;
+	protected Context context;
 	
-	private Text resultKey = new Text();
-	private Text resultValue = new Text();
+	protected Text resultKey = new Text();
+	protected Text resultValue = new Text();
 
 	@Override
 	public void map(LongWritable key, Text value, Context context)
@@ -55,7 +55,7 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @return true If the array has a valid length
 	 * @return false If the array has a invalid length.
 	 */
-	private boolean hasValidLength(String[] phrases) {
+	protected boolean hasValidLength(String[] phrases) {
 		return phrases.length >= VALID_LENGTH;
 	}
 
@@ -69,7 +69,7 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	private void writeFollower(String user, String follower)
+	protected void writeFollower(String user, String follower)
 			throws IOException, InterruptedException {
 		StringBuilder out = new StringBuilder(FOLLOWER).append(follower);
 		resultKey.set(user);
@@ -87,7 +87,7 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	private void writeFollowee(String user, String followee)
+	protected void writeFollowee(String user, String followee)
 			throws IOException, InterruptedException {
 		StringBuilder out = new StringBuilder(FOLLOWEE).append(followee);
 		resultKey.set(user);
@@ -102,7 +102,7 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 *            Phrase to extract the user name
 	 * @return User name of the phrase
 	 */
-	private String getUserName(String phrase) {
+	protected String getUserName(String phrase) {
 		String chunks[] = phrase.split(Format.PROPERTY_INDICATOR);
 		return chunks[0];
 	}
@@ -115,7 +115,7 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @return true If the property is Format.VERIFIED
 	 * @return false If the property is not Format.VERIFIED
 	 */
-	private boolean isVerified(String phrase) {
+	protected boolean isVerified(String phrase) {
 		return phrase.substring(phrase.length() - 2).equals(Format.VERIFIED);
 	}
 

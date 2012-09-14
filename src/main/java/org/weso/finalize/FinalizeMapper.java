@@ -19,8 +19,8 @@ import org.weso.utils.Format;
  */
 public class FinalizeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	
-	private Text resultKey = new Text();
-	private Text resultValue = new Text();
+	protected Text resultKey = new Text();
+	protected Text resultValue = new Text();
 	
 	@Override
 	public void map(LongWritable key, Text value, Context context)
@@ -38,9 +38,11 @@ public class FinalizeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * Loads current user property:value into a Map
 	 * @return Map with user properties name and properties values.
 	 */
-	private Set<String> getProperties(String user){
+	protected Set<String> getProperties(String user){
 		String chunks[] =  user.split(Format.PROPERTY_INDICATOR);
-		return new HashSet<String>(Arrays.asList(chunks));
+		 Set<String> set = new HashSet<String>(Arrays.asList(chunks));
+		 set.remove(getUserName(user));
+		 return set;
 	}
 	
 	/**
@@ -48,7 +50,7 @@ public class FinalizeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @param user User to find his user name 
 	 * @return User name of an user
 	 */
-	private String getUserName(String user){
+	protected String getUserName(String user){
 		String chunks[] =  user.split(Format.PROPERTY_INDICATOR);
 		return chunks[0];
 	}
