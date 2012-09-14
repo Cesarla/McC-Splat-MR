@@ -24,16 +24,16 @@ import org.weso.utils.Format;
  */
 public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	
-	private static String UNDEFINED = "UNDEFINED";
-	private static String NEW_DATA = "#100.0000:";
+	protected static String UNDEFINED = "UNDEFINED";
+	protected static String NEW_DATA = "#100.0000:";
 
-	private static Text SINK = new Text("sink");
-	private static Text NOBODY = new Text("nobody");
+	protected static Text SINK = new Text("sink");
+	protected static Text NOBODY = new Text("nobody");
 
-	private Pattern patternUndefined = Pattern
+	protected Pattern patternUndefined = Pattern
 			.compile("^[a-zA-Z0-9_/.]{1,15}.*");
 
-	private Map<String, String> verifiedData = null;
+	protected Map<String, String> verifiedData = null;
 
 	@Override
 	public void map(LongWritable key, Text value, Context context)
@@ -68,7 +68,7 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	private void initializeMapper(Context context) throws IOException,
+	protected void initializeMapper(Context context) throws IOException,
 			InterruptedException {
 		this.verifiedData = readVerifiedData(getVerifiedDataPath(context));
 		Text user = generateUser(SINK.toString());
@@ -79,7 +79,7 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * Generates a user "chunk" for a specific user name.
 	 * @param userName User name of the user "chunk"
 	 */
-	private Text generateUser(String userName) {
+	protected Text generateUser(String userName) {
 		Text user = null;
 		String type = getProperty(userName);
 		if (!type.equals(UNDEFINED)) {
@@ -96,7 +96,7 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @param userName User name who is searched for a value
 	 * @return Property name assigned to the user name.
 	 */
-	private String getProperty(String userName) {
+	protected String getProperty(String userName) {
 		String property = this.verifiedData.get(userName);
 		if (property == null) {
 			property = UNDEFINED;
@@ -110,7 +110,7 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @param context The Context passed on to the mapper implementations.
 	 * @return Verified data file path set in the parameters.
 	 */
-	private String getVerifiedDataPath(Context context) {
+	protected String getVerifiedDataPath(Context context) {
 		Configuration conf = context.getConfiguration();
 		String path = conf.get("verifiedData");
 		return path;
@@ -122,7 +122,7 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @return A map of user names as keys and verified properties as values
 	 * @throws IOException
 	 */
-	private Map<String, String> readVerifiedData(String path)
+	protected Map<String, String> readVerifiedData(String path)
 			throws IOException {
 		Map<String, String> verifiedData = new HashMap<String, String>();
 		FileSystem fs = FileSystem.get(new Configuration());

@@ -35,9 +35,11 @@ public class FinalizeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * Loads current user property:value into a Map
 	 * @return Map with user properties name and properties values.
 	 */
-	private Set<String> getProperties(String user){
+	protected Set<String> getProperties(String user){
 		String chunks[] =  user.split(Format.PROPERTY_INDICATOR);
-		return new HashSet<String>(Arrays.asList(chunks));
+		Set<String> set = new HashSet<String>(Arrays.asList(chunks));
+		set.remove(getUserName(user));
+		return set;
 	}
 	
 	/**
@@ -45,7 +47,7 @@ public class FinalizeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @param user User to find his user name 
 	 * @return User name of an user
 	 */
-	private String getUserName(String user){
+	protected String getUserName(String user){
 		String chunks[] =  user.split(Format.PROPERTY_INDICATOR);
 		return chunks[0];
 	}
