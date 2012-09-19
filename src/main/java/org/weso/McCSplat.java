@@ -164,7 +164,7 @@ public class McCSplat {
 
 			runInitializeJob(executionPath);
 
-			for (i = 1; i < 8; i++) {
+			for (i = 1; i < 50; i++) {
 				runRankJob(executionPath, i);
 			}
 
@@ -190,7 +190,6 @@ public class McCSplat {
 		job.setJarByClass(this.getClass());
 		job.setMapperClass(InitializeMapper.class);
 		job.setReducerClass(InitializeReducer.class);
-
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
 
@@ -219,7 +218,7 @@ public class McCSplat {
 
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
-
+		
 		FileInputFormat.addInputPath(job, new Path(executionPath + "/" + (i)));
 		FileOutputFormat.setOutputPath(job, new Path(executionPath + "/" + (i + 1)));
 		job.waitForCompletion(true);
@@ -250,7 +249,7 @@ public class McCSplat {
 
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
-
+		
 		FileInputFormat.addInputPath(job, new Path(executionPath + "/" + (i)));
 		FileOutputFormat.setOutputPath(job, new Path(executionPath + "/" + (i + 1)));
 		System.exit(job.waitForCompletion(true) ? 0 : 1);

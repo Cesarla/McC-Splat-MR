@@ -11,6 +11,7 @@ import java.util.Set;
 import org.apache.hadoop.io.Text;
 import org.junit.Before;
 import org.junit.Test;
+import org.weso.rank.RankReducer;
 import org.weso.utils.Format;
 
 public class RankReducerTest {

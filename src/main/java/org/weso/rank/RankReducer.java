@@ -91,10 +91,15 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 		Iterator<java.util.Map.Entry<String, Double>> it = values.entrySet().iterator();
 		StringBuilder out = new StringBuilder(currentUser);
 		
+		java.util.Map.Entry<String, Double> pair = null;
+		String value = null;
+		
 		if(values.size()>0){
 			while (it.hasNext()) {
-				java.util.Map.Entry<String, Double> pair = it.next();
-				out.append(Format.PROPERTY_INDICATOR).append((Double)pair.getValue()/followeesSize).append(Format.PROPERTY_SEPARATOR).append(pair.getKey());
+				pair = it.next();
+				value = new Double(pair.getValue()/followeesSize).toString();
+				value.replaceAll("([0-9])\\.0+([^0-9]|$)", "$1$2");
+				out.append(Format.PROPERTY_INDICATOR).append(value).append(Format.PROPERTY_SEPARATOR).append(pair.getKey());
 			}
 		}else{
 			out.append(UNDEFINED);
@@ -191,10 +196,8 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	protected void saveSinkData(String data) throws IOException{
 		FileSystem fs = FileSystem.get(new Configuration());
 		Path path = new Path(executionPath+"/sink/part-r-00000");
-		if(fs.exists(path)){
-			if(!fs.delete(path, false))
+		if(fs.exists(path) && !fs.delete(path, false))
 				throw new IOException("Error while deleting \""+path.toString()+"\"");
-		}
 		FSDataOutputStream out = fs.create(path);
 		out.writeUTF(data);
 		out.close();

@@ -31,12 +31,12 @@ public class InitializeMapperTest {
 	
 	@Test
 	public void generateUserUndefined(){
-		assertEquals("john#100.0000:UNDEF",initializeMapper.generateUser("john"));
+		assertEquals("john#100:UNDEF",initializeMapper.generateUser("john"));
 	}
 	
 	@Test
 	public void generateUserDefined(){
 		initializeMapper.verifiedData.put("john", "ANTISYSTEM");
-		assertEquals("john#100.0000:ANTISYSTEM@V",initializeMapper.generateUser("john"));
+		assertEquals("john#100:ANTISYSTEM@V",initializeMapper.generateUser("john"));
 	}
 }

@@ -25,7 +25,7 @@ import org.weso.utils.Format;
 public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	
 	protected static String UNDEFINED = "UNDEF";
-	protected static String NEW_DATA = "#100.0000:";
+	protected static String NEW_DATA = "#100:";
 
 	protected static Text SINK = new Text("sink");
 	
