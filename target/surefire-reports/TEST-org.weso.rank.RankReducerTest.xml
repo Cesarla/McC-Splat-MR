@@ -60,17 +60,17 @@
   <testcase time="0.003" classname="org.weso.rank.RankReducerTest" name="getUserNameSuccess"/>
   <testcase time="0.002" classname="org.weso.rank.RankReducerTest" name="loadUsersEmptyFollowees"/>
   <testcase time="0.002" classname="org.weso.rank.RankReducerTest" name="loadUsersEmptyFollowers"/>
-  <testcase time="0.001" classname="org.weso.rank.RankReducerTest" name="loadUsersEmptySize"/>
+  <testcase time="0.002" classname="org.weso.rank.RankReducerTest" name="loadUsersEmptySize"/>
   <testcase time="0.002" classname="org.weso.rank.RankReducerTest" name="loadUsersMixedFollowees"/>
   <testcase time="0.002" classname="org.weso.rank.RankReducerTest" name="loadUsersMixedFollowers"/>
   <testcase time="0.002" classname="org.weso.rank.RankReducerTest" name="loadUsersMixedSize"/>
-  <testcase time="0.003" classname="org.weso.rank.RankReducerTest" name="getValuesVerifiedUser"/>
+  <testcase time="0.002" classname="org.weso.rank.RankReducerTest" name="getValuesVerifiedUser"/>
   <testcase time="0.003" classname="org.weso.rank.RankReducerTest" name="getValuesUnverifiedUser"/>
   <testcase time="0.002" classname="org.weso.rank.RankReducerTest" name="getValuesVerifiedFollower"/>
   <testcase time="0.002" classname="org.weso.rank.RankReducerTest" name="loadValuesSingleUser"/>
   <testcase time="0.002" classname="org.weso.rank.RankReducerTest" name="loadValuesSeveralUsers"/>
   <testcase time="0.002" classname="org.weso.rank.RankReducerTest" name="loadValuesVerifiedUser"/>
-  <testcase time="0.002" classname="org.weso.rank.RankReducerTest" name="calculateRankNoFollowers"/>
+  <testcase time="0.003" classname="org.weso.rank.RankReducerTest" name="calculateRankNoFollowers"/>
   <testcase time="0.002" classname="org.weso.rank.RankReducerTest" name="calculateRankOneFollower"/>
   <testcase time="0.003" classname="org.weso.rank.RankReducerTest" name="calculateRankSeveralUser"/>
 </testsuite>
