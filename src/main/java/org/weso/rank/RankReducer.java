@@ -27,7 +27,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	protected final static char FOLLOWEE = '0';
 	protected final static char FOLLOWER = '1';
 	
-	protected final static String UNDEFINED = "#100.0000:UNDEF";
+	protected final static String UNDEFINED = "#100:UNDEF";
 	
 	protected Set<String> followees = new HashSet<String>();
 	protected Set<String> followers = new HashSet<String>();
@@ -92,14 +92,11 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 		StringBuilder out = new StringBuilder(currentUser);
 		
 		java.util.Map.Entry<String, Double> pair = null;
-		String value = null;
 		
 		if(values.size()>0){
 			while (it.hasNext()) {
 				pair = it.next();
-				value = new Double(pair.getValue()/followeesSize).toString();
-				value.replaceAll("([0-9])\\.0+([^0-9]|$)", "$1$2");
-				out.append(Format.PROPERTY_INDICATOR).append(value).append(Format.PROPERTY_SEPARATOR).append(pair.getKey());
+				out.append(Format.PROPERTY_INDICATOR).append((Double)pair.getValue()/followeesSize).append(Format.PROPERTY_SEPARATOR).append(pair.getKey());
 			}
 		}else{
 			out.append(UNDEFINED);

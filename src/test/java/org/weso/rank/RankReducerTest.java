@@ -185,7 +185,7 @@ public class RankReducerTest {
 		
 		rankReducer.calculateRank();
 		
-		assertEquals(new Text("john#100.0000:UNDEF"),
+		assertEquals(new Text("john#100:UNDEF"),
 				rankReducer.resultKey);
 	}
 	
