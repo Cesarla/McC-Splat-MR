@@ -193,10 +193,14 @@ public class RankReducer extends Reducer<Text, Text, Text, Text>{
 	protected void saveSinkData(String data) throws IOException{
 		FileSystem fs = FileSystem.get(new Configuration());
 		Path path = new Path(executionPath+"/sink/part-r-00000");
+		FSDataOutputStream out = null;
 		if(fs.exists(path) && !fs.delete(path, false))
 				throw new IOException("Error while deleting \""+path.toString()+"\"");
-		FSDataOutputStream out = fs.create(path);
-		out.writeUTF(data);
-		out.close();
+		try{
+			out = fs.create(path);
+			out.writeUTF(data);
+		}finally{
+			out.close();
+		}
 	}
 }

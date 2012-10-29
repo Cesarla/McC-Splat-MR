@@ -98,13 +98,17 @@ public class FinalizeReducer extends Reducer<Text,Text,Text,Text>{
 		Path data = new Path(currentPath+"/sink/part-r-00000");
 		BufferedReader br = new BufferedReader(new InputStreamReader(
 				fs.open(data)));
-		String line = null;
-		while ((line = br.readLine()) != null) {
-			String[] phrases = line.split(Format.PROPERTY_INDICATOR);
-			for(int i = 1; i < phrases.length; i++){
-				String[] property = phrases[i].split(Format.PROPERTY_SEPARATOR);
-				sinkProperties.put(property[1], new Double(property[0]));
+		try{
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				String[] phrases = line.split(Format.PROPERTY_INDICATOR);
+				for(int i = 1; i < phrases.length; i++){
+					String[] property = phrases[i].split(Format.PROPERTY_SEPARATOR);
+					sinkProperties.put(property[1], new Double(property[0]));
+				}
 			}
+		}finally{
+			br.close();
 		}
 		return sinkProperties;
 	}

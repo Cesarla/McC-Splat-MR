@@ -34,7 +34,7 @@ import org.weso.utils.Mode;
  * 
  */
 public class McCSplat {
-
+	
 	@Argument(required = true, index = 0, usage = "File 'a' Follows 'b'", metaVar = "follows <File>")
 	private String follows = null;
 
@@ -53,8 +53,12 @@ public class McCSplat {
 	@Option(name = "-h", aliases = { "--help" }, usage = "print this message")
 	private boolean help = false;
 
-	private static String MCC_SPLAT_VERSION = "0.1.0.1207230";
+	private final static String MCC_SPLAT_VERSION = "0.1.0.1207230";
 
+	private final static int NUM_ITERATIONS = 50;
+	
+	private final static int KEPT_OLD_ITERATIONS = 3;
+	
 	private CmdLineParser parser = null;
 	
 	public static McCSplat MCCSPLAT_INSTANCE = null;
@@ -164,8 +168,10 @@ public class McCSplat {
 
 			runInitializeJob(executionPath);
 
-			for (i = 1; i < 50; i++) {
+			for (i = 1; i < NUM_ITERATIONS; i++) {
 				runRankJob(executionPath, i);
+				removeOldData(executionPath, i);
+				
 			}
 
 			runFinalizeJob(executionPath, i);
@@ -201,12 +207,12 @@ public class McCSplat {
 	/**
 	 * Executes the Rank Job
 	 * @param executionPath Path of the Hadoop Output
-	 * @param i Counter of the job execution
+	 * @param iteration Counter of the job execution
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws ClassNotFoundException
 	 */
-	private void runRankJob(String executionPath, int i) throws IOException,
+	private void runRankJob(String executionPath, int iteration) throws IOException,
 			InterruptedException, ClassNotFoundException {
 		Configuration conf = new Configuration();
 		conf.setStrings("executionPath", executionPath);
@@ -219,21 +225,29 @@ public class McCSplat {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
 		
-		FileInputFormat.addInputPath(job, new Path(executionPath + "/" + (i)));
-		FileOutputFormat.setOutputPath(job, new Path(executionPath + "/" + (i + 1)));
+		FileInputFormat.addInputPath(job, new Path(executionPath + "/" + (iteration)));
+		FileOutputFormat.setOutputPath(job, new Path(executionPath + "/" + (iteration + 1)));
 		job.waitForCompletion(true);
+	}
+	
+	
+	private void removeOldData(String executionPath, int iteration) throws IOException{
+		FileSystem fs = FileSystem.get(new Configuration());
+		Path path = new Path(executionPath+"/"+(iteration-KEPT_OLD_ITERATIONS));
+		if(fs.exists(path) && !fs.delete(path, true))
+			throw new IOException("Error while deleting \""+path.toString()+"\"");
 	}
 
 	/**
 	 * Runs the Finalize Job
 	 * @param executionPath Path of the Hadoop Output
-	 * @param i Counter of the job execution
+	 * @param iteration Counter of the job execution
 	 * @throws CmdLineException
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws ClassNotFoundException
 	 */
-	private void runFinalizeJob(String executionPath, int i)
+	private void runFinalizeJob(String executionPath, int iteration)
 			throws CmdLineException, IOException, InterruptedException,
 			ClassNotFoundException {
 		Configuration conf = null;
@@ -250,8 +264,8 @@ public class McCSplat {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
 		
-		FileInputFormat.addInputPath(job, new Path(executionPath + "/" + (i)));
-		FileOutputFormat.setOutputPath(job, new Path(executionPath + "/" + (i + 1)));
+		FileInputFormat.addInputPath(job, new Path(executionPath + "/" + (iteration)));
+		FileOutputFormat.setOutputPath(job, new Path(executionPath + "/" + (iteration + 1)));
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
 	}
 
