@@ -116,7 +116,7 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @return false If the property is not Format.VERIFIED
 	 */
 	protected boolean isVerified(String phrase) {
-		return phrase.substring(phrase.length() - 2).equals(Format.VERIFIED);
+		return phrase.substring(phrase.length() - Format.VERIFIED.length()).equals(Format.VERIFIED);
 	}
 
 }
