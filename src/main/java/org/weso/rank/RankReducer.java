@@ -34,7 +34,6 @@ public class RankReducer extends Reducer<Text, Text, Text, Text> {
 
 	protected int followeesSize = 0;
 	protected String currentUser = null;
-	protected String executionPath = null;
 	protected Context context = null;
 
 	protected Text resultKey = new Text();
@@ -128,12 +127,15 @@ public class RankReducer extends Reducer<Text, Text, Text, Text> {
 	 * @throws InterruptedException
 	 */
 	protected void writeResults() throws IOException, InterruptedException {
+		StringBuilder output = new StringBuilder();
 		for (String follower : followers) {
-			resultValue.set(follower);
-			context.write(resultKey, resultValue);
+			output.append(follower).append("\t");
 		}
-		if (currentUser.equals("sink"))
+		resultValue.set(output.toString());
+		context.write(resultKey, resultValue);
+		if (currentUser.equals("sink")) {
 			saveSinkData(resultKey.toString());
+		}
 	}
 
 	/**
@@ -228,14 +230,28 @@ public class RankReducer extends Reducer<Text, Text, Text, Text> {
 	 */
 	protected void saveSinkData(String data) throws IOException {
 		FileSystem fs = FileSystem.get(new Configuration());
-		this.executionPath = context.getConfiguration().get("executionPath");// !
+		
+		String executionPath = context.getConfiguration().get("executionPath");
+		int iteration = context.getConfiguration().getInt("iteration",0);
+		
 		Path path = new Path(executionPath + "/sink/part-r-00000");
-		FSDataOutputStream out = null;
+		Path oldPath = new Path(executionPath + "/sink/"+iteration+"/part-r-00000");
+		
+		if (fs.exists(oldPath) && !fs.delete(oldPath, false))
+			throw new IOException("Error while deleting \"" + path.toString()
+					+ "\"");
+		writeData(data, fs, oldPath);
 		if (fs.exists(path) && !fs.delete(path, false))
 			throw new IOException("Error while deleting \"" + path.toString()
 					+ "\"");
+		writeData(data, fs, path);
+	}
+
+	private void writeData(String data, FileSystem fs, Path oldPath)
+			throws IOException {
+		FSDataOutputStream out = null;
 		try {
-			out = fs.create(path);
+			out = fs.create(oldPath);
 			out.writeUTF(data);
 		} finally {
 			out.close();

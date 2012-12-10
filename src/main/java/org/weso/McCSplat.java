@@ -194,11 +194,23 @@ public class McCSplat {
 		Job job = new Job(conf);
 		job.setJobName("McCSPlat-Initialize");
 		job.setJarByClass(this.getClass());
+		
 		job.setMapperClass(InitializeMapper.class);
 		job.setReducerClass(InitializeReducer.class);
+		
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
-
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(Text.class);
+		
+		// Compress Map output
+		conf.set("mapred.compress.map.output","true");
+		conf.set("mapred.map.output.compression.codec","org.apache.hadoop.io.compress.SnappyCodec");
+		// Compress MapReduce output
+		conf.set("mapred.output.compress","true");
+		conf.set("mapred.output.compression.type","block");
+		conf.set("mapred.output.compression.codec","org.apache.hadoop.io.compress.SnappyCodec");
+		
 		FileInputFormat.addInputPath(job, new Path(follows));
 		FileOutputFormat.setOutputPath(job, new Path(executionPath + "/1"));
 		job.waitForCompletion(true);
@@ -216,14 +228,27 @@ public class McCSplat {
 			InterruptedException, ClassNotFoundException {
 		Configuration conf = new Configuration();
 		conf.setStrings("executionPath", executionPath);
+		conf.setInt("iteration", iteration);
 		Job job = new Job(conf);
+		
 		job.setJobName("McCSPlat-Rank");
 		job.setJarByClass(this.getClass());
+		
 		job.setMapperClass(RankMapper.class);
 		job.setReducerClass(RankReducer.class);
 
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(Text.class);
+		
+		// Compress Map output
+		conf.set("mapred.compress.map.output","true");
+		conf.set("mapred.map.output.compression.codec","org.apache.hadoop.io.compress.SnappyCodec");
+		// Compress MapReduce output
+		conf.set("mapred.output.compress","true");
+		conf.set("mapred.output.compression.type","block");
+		conf.set("mapred.output.compression.codec","org.apache.hadoop.io.compress.SnappyCodec");
 		
 		FileInputFormat.addInputPath(job, new Path(executionPath + "/" + (iteration)));
 		FileOutputFormat.setOutputPath(job, new Path(executionPath + "/" + (iteration + 1)));
@@ -251,18 +276,31 @@ public class McCSplat {
 			throws CmdLineException, IOException, InterruptedException,
 			ClassNotFoundException {
 		Configuration conf = null;
+		
 		Job job = null;
 		conf = new Configuration();
 		conf.setInt("mode", getMode());
 		conf.set("executionPath", executionPath);
 		job = new Job(conf);
+		
 		job.setJobName("McCSPlat-Finalize");
 		job.setJarByClass(this.getClass());
+		
 		job.setMapperClass(FinalizeMapper.class);
 		job.setReducerClass(FinalizeReducer.class);
 
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(Text.class);
+		
+		// Compress Map output
+		conf.set("mapred.compress.map.output","true");
+		conf.set("mapred.map.output.compression.codec","org.apache.hadoop.io.compress.SnappyCodec");
+		// Compress MapReduce output
+		conf.set("mapred.output.compress","true");
+		conf.set("mapred.output.compression.type","block");
+		conf.set("mapred.output.compression.codec","org.apache.hadoop.io.compress.SnappyCodec");
 		
 		FileInputFormat.addInputPath(job, new Path(executionPath + "/" + (iteration)));
 		FileOutputFormat.setOutputPath(job, new Path(executionPath + "/" + (iteration + 1)));

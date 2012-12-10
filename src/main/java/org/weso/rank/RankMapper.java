@@ -34,16 +34,18 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 		this.context = context;
 
-		if (hasValidLength(phrases)) {
-			writeFollowee(phrases[1], phrases[0]);
-			
-			writeFollower(getUserName(phrases[0]), phrases[1]);
-			
-			if (isVerified(phrases[0])) {
-				writeFollowee(getUserName(phrases[0]), phrases[0]);
-			}
-
+		//if (hasValidLength(phrases)) {
+		
+		if (isVerified(phrases[0])) {
+			writeFollowee(getUserName(phrases[0]), phrases[0]);
 		}
+		
+		for(int i=1;i<phrases.length;i++){
+			writeFollowee(phrases[i], phrases[0]);
+			writeFollower(getUserName(phrases[0]), phrases[i]);
+		}
+
+		//}
 
 	}
 
@@ -55,9 +57,9 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @return true If the array has a valid length
 	 * @return false If the array has a invalid length.
 	 */
-	protected boolean hasValidLength(String[] phrases) {
+	/*protected boolean hasValidLength(String[] phrases) {
 		return phrases.length >= VALID_LENGTH;
-	}
+	}*/
 
 	/**
 	 * Write in the Hadoop Output an user name with a follower

@@ -1,8 +1,6 @@
 package org.weso.initialize;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -16,7 +14,7 @@ import org.apache.hadoop.mapreduce.Reducer;
  */
 public class InitializeReducer extends Reducer<Text, Text, Text, Text> {
 
-	protected Set<String> followee = new HashSet<String>();
+	protected StringBuilder followee;
 	protected Text resultValue = new Text();
 
 	@Override
@@ -34,9 +32,10 @@ public class InitializeReducer extends Reducer<Text, Text, Text, Text> {
 	protected void filterValues(Iterable<Text> values) throws IllegalArgumentException{
 		if(values == null)
 			throw new IllegalArgumentException("Values could not be a null value");
-		followee.clear();
+		this.followee = new StringBuilder();
+		
 		for (Text value : values) {
-			followee.add(value.toString());
+			followee.append(value.toString()).append("\t");
 		}
 	}
 
@@ -50,10 +49,8 @@ public class InitializeReducer extends Reducer<Text, Text, Text, Text> {
 	 */
 	protected void writeResult(Text currentUserName, Context context) throws IOException,
 			InterruptedException {
-		for (String followeeRaw : followee) {
-			resultValue.set(followeeRaw);
+			resultValue.set(followee.toString());
 			context.write(currentUserName, resultValue);
-		}
 	}
 
 }

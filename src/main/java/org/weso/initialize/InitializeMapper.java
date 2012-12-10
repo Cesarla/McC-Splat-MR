@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -23,17 +22,17 @@ import org.weso.utils.Format;
  * 
  */
 public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
-	
+
 	protected static String UNDEFINED = "UNDEF";
 	protected static String NEW_DATA = "#100:";
 
 	protected static Text SINK = new Text("sink");
-	
-	protected Pattern patternUndefined = Pattern
-			.compile("^[a-zA-Z0-9_/.]{1,15}.*");
+
+	/*protected Pattern patternUndefined = Pattern
+			.compile("^[a-zA-Z0-9_/.]{1,15}.*");*/
 
 	protected Map<String, String> verifiedData = null;
-	
+
 	protected Text resultKey = new Text();
 	protected Text resultValue = new Text();
 
@@ -51,22 +50,24 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 		if (line.isEmpty())
 			return;
 
-		if (patternUndefined.matcher(line).find()) {
-			resultKey.set(generateUser(phrases[0]));
-			resultValue.set(phrases[1]);
-			context.write(resultKey, resultValue);
-			context.write(resultKey, SINK);
+		// if (patternUndefined.matcher(line).find()) {
+		resultKey.set(generateUser(phrases[0]));
+		resultValue.set(phrases[1]);
+		context.write(resultKey, resultValue);
+		context.write(resultKey, SINK);
 
-			resultKey.set(generateUser(phrases[1]));
-			context.write(resultKey, SINK);
-		}else{
-			throw new IOException("Bad Formed input files, key:" + key + " line:\""
-					+ line + "\" " + phrases.length);
-		}
+		resultKey.set(generateUser(phrases[1]));
+		context.write(resultKey, SINK);
+		/*
+		 * }else{ throw new IOException("Bad Formed input files, key:" + key +
+		 * " line:\"" + line + "\" " + phrases.length); }
+		 */
 	}
 
 	/**
-	 * Initialize the mapper, loading verified data, and writing the sink within Hadoop out
+	 * Initialize the mapper, loading verified data, and writing the sink within
+	 * Hadoop out
+	 * 
 	 * @param context
 	 * @throws IOException
 	 * @throws InterruptedException
@@ -74,7 +75,7 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	protected void initializeMapper(Context context) throws IOException,
 			InterruptedException {
 		this.verifiedData = readVerifiedData(getVerifiedDataPath(context));
-		
+
 		resultKey.set(generateUser(SINK.toString()));
 		resultValue.set("nobody");
 		context.write(resultKey, resultValue);
@@ -82,13 +83,15 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 	/**
 	 * Generates a user "chunk" for a specific user name.
-	 * @param userName User name of the user "chunk"
+	 * 
+	 * @param userName
+	 *            User name of the user "chunk"
 	 * @return User "chunk" for a specific user name.
 	 */
 	protected String generateUser(String userName) {
 		String type = getProperty(userName);
-		StringBuilder user = new StringBuilder(userName).
-				append(NEW_DATA).append(type);
+		StringBuilder user = new StringBuilder(userName).append(NEW_DATA)
+				.append(type);
 		if (!type.equals(UNDEFINED)) {
 			user.append(Format.VERIFIED);
 		}
@@ -98,7 +101,8 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	/**
 	 * Returns the property name assigned to the user name.
 	 * 
-	 * @param userName User name who is searched for a value
+	 * @param userName
+	 *            User name who is searched for a value
 	 * @return Property name assigned to the user name.
 	 */
 	protected String getProperty(String userName) {
@@ -112,7 +116,8 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 	/**
 	 * Returns the verified data file path set in the parameters.
 	 * 
-	 * @param context The Context passed on to the mapper implementations.
+	 * @param context
+	 *            The Context passed on to the mapper implementations.
 	 * @return Verified data file path set in the parameters.
 	 */
 	protected String getVerifiedDataPath(Context context) {
@@ -122,7 +127,9 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 	/**
 	 * Read the verified data file and load it into a Map.
-	 * @param path Path of the defined data file.
+	 * 
+	 * @param path
+	 *            Path of the defined data file.
 	 * @return A map of user names as keys and verified properties as values
 	 * @throws IOException
 	 */
