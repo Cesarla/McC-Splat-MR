@@ -34,32 +34,17 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 		this.context = context;
 
-		//if (hasValidLength(phrases)) {
-		
+		String userName = getUserName(phrases[0]);
 		if (isVerified(phrases[0])) {
-			writeFollowee(getUserName(phrases[0]), phrases[0]);
+			writeFollowee(userName, phrases[0]);
 		}
 		
 		for(int i=1;i<phrases.length;i++){
 			writeFollowee(phrases[i], phrases[0]);
-			writeFollower(getUserName(phrases[0]), phrases[i]);
+			writeFollower(userName, phrases[i]);
 		}
 
-		//}
-
 	}
-
-	/**
-	 * Checks if the array has a valid length
-	 * 
-	 * @param phrases
-	 *            Array to check
-	 * @return true If the array has a valid length
-	 * @return false If the array has a invalid length.
-	 */
-	/*protected boolean hasValidLength(String[] phrases) {
-		return phrases.length >= VALID_LENGTH;
-	}*/
 
 	/**
 	 * Write in the Hadoop Output an user name with a follower
@@ -105,8 +90,8 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @return User name of the phrase
 	 */
 	protected String getUserName(String phrase) {
-		String chunks[] = phrase.split(Format.PROPERTY_INDICATOR);
-		return chunks[0];
+        int end = phrase.indexOf(Format.PROPERTY_INDICATOR, 0);
+        return phrase.substring(0, end);
 	}
 
 	/**
@@ -118,7 +103,7 @@ public class RankMapper extends Mapper<LongWritable, Text, Text, Text> {
 	 * @return false If the property is not Format.VERIFIED
 	 */
 	protected boolean isVerified(String phrase) {
-		return phrase.substring(phrase.length() - Format.VERIFIED.length()).equals(Format.VERIFIED);
+		return phrase.indexOf(Format.VERIFIED) > -1;
 	}
 
 }

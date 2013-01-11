@@ -28,9 +28,6 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 	protected static Text SINK = new Text("sink");
 
-	/*protected Pattern patternUndefined = Pattern
-			.compile("^[a-zA-Z0-9_/.]{1,15}.*");*/
-
 	protected Map<String, String> verifiedData = null;
 
 	protected Text resultKey = new Text();
@@ -45,12 +42,11 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 		}
 
 		String line = value.toString();
-		String[] phrases = line.split("\t");
+		String[] phrases = value.toString().split("\t");
 
 		if (line.isEmpty())
 			return;
 
-		// if (patternUndefined.matcher(line).find()) {
 		resultKey.set(generateUser(phrases[0]));
 		resultValue.set(phrases[1]);
 		context.write(resultKey, resultValue);
@@ -58,10 +54,6 @@ public class InitializeMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 		resultKey.set(generateUser(phrases[1]));
 		context.write(resultKey, SINK);
-		/*
-		 * }else{ throw new IOException("Bad Formed input files, key:" + key +
-		 * " line:\"" + line + "\" " + phrases.length); }
-		 */
 	}
 
 	/**

@@ -175,7 +175,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text> {
 			Entry<String, Double> valuePair) {
 		Double value = values.get(valuePair.getKey());
 		if (value == null) {
-			value = new Double(0);
+			value = 0d;
 		}
 		values.put(valuePair.getKey(), value + valuePair.getValue());
 	}
@@ -189,11 +189,12 @@ public class RankReducer extends Reducer<Text, Text, Text, Text> {
 
 		Map<String, Double> map = new HashMap<String, Double>();
 		String chunks[] = user.split(Format.PROPERTY_INDICATOR);
-
+		String propertyPair[] = null;
+		String name = null;
 		for (int i = 0; i < chunks.length; i++) {
-			String propertyPair[] = chunks[i].split(Format.PROPERTY_SEPARATOR);
+			propertyPair = chunks[i].split(Format.PROPERTY_SEPARATOR);
 			if (propertyPair.length >= 2) {
-				String name = propertyPair[1];
+				name = propertyPair[1];
 				if (name.contains(Format.VERIFIED)) {
 					if (currentUser.equals(getUserName(user))) {
 						map.clear();
@@ -212,13 +213,13 @@ public class RankReducer extends Reducer<Text, Text, Text, Text> {
 	/**
 	 * Returns the user name of an user
 	 * 
-	 * @param user
+	 * @param phrase
 	 *            User to find his user name
 	 * @return User name of an user
 	 */
-	protected String getUserName(String user) {
-		String chunks[] = user.split(Format.PROPERTY_INDICATOR);
-		return chunks[0];
+	protected String getUserName(String phrase) {
+		 int end = phrase.indexOf(Format.PROPERTY_INDICATOR, 0);
+	     return phrase.substring(0, end);
 	}
 
 	/**
@@ -246,6 +247,7 @@ public class RankReducer extends Reducer<Text, Text, Text, Text> {
 					+ "\"");
 		writeData(data, fs, path);
 	}
+
 
 	private void writeData(String data, FileSystem fs, Path oldPath)
 			throws IOException {

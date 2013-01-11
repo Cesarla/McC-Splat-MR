@@ -24,13 +24,9 @@ public class InitializeReducerTest {
 		inputSet.add(new Text("john"));
 		inputSet.add(new Text("mark"));
 		
-		Set<String> followers = new HashSet<String>();
-		followers.add("john");
-		followers.add("mark");
-		
 		initializeReducer.filterValues(inputSet);
 		
-		assertEquals(followers,initializeReducer.followee);
+		assertEquals("john\tmark\t", initializeReducer.followee.toString());
 		
 	}
 }

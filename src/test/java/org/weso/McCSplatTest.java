@@ -2,6 +2,7 @@ package org.weso;
 
 import static org.junit.Assert.*;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.kohsuke.args4j.CmdLineException;
@@ -17,6 +18,11 @@ public class McCSplatTest{
 	@Before
 	public void beforeTest() {
 		this.mcCSplat = McCSplat.getInstance();
+	}
+	
+	@After
+	public void afterTest(){
+		McCSplat.MCCSPLAT_INSTANCE=null;
 	}
 	
 	@Test

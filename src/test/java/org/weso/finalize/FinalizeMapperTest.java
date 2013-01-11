@@ -2,9 +2,6 @@ package org.weso.finalize;
 
 import static org.junit.Assert.*;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,11 +16,8 @@ public class FinalizeMapperTest {
 	
 	@Test
 	public void getProperties(){
-		Set<String> set = new HashSet<String>();
-		set.add("50.000:UNDEF");
-		set.add("50.000:ANTISYSTEM");
-		
-		assertEquals(set,finalizeMapper.getProperties("john#50.000:UNDEF#50.000:ANTISYSTEM"));
+		String[] properties = new String[]{"50.000:UNDEF","50.000:ANTISYSTEM"};
+		assertEquals(properties,finalizeMapper.getProperties("50.000:UNDEF#50.000:ANTISYSTEM"));
 	}
 	
 	@Test
