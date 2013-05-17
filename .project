@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-  <name>McC-Splat</name>
-  <comment>NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
+  <name>McC-Splat-MR</name>
+  <comment>McC-Splat-MR is a MapReduce implementation of the McC-Splat Algorithm, created by Daniel Gayo Avello, using Hadoop Framework. McC-Splat is an iterative algorithm to perform vertex labeling on a partially labeled social network. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
   <projects/>
   <buildSpec>
     <buildCommand>

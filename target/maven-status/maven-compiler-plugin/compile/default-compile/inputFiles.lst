@@ -1,0 +1,9 @@
+/home/cesarla/workspace/mcc-splat/src/main/java/es/weso/finalize/FinalizeMapper.java
+/home/cesarla/workspace/mcc-splat/src/main/java/es/weso/utils/Mode.java
+/home/cesarla/workspace/mcc-splat/src/main/java/es/weso/rank/RankReducer.java
+/home/cesarla/workspace/mcc-splat/src/main/java/es/weso/initialize/InitializeMapper.java
+/home/cesarla/workspace/mcc-splat/src/main/java/es/weso/McCSplat.java
+/home/cesarla/workspace/mcc-splat/src/main/java/es/weso/finalize/FinalizeReducer.java
+/home/cesarla/workspace/mcc-splat/src/main/java/es/weso/utils/Format.java
+/home/cesarla/workspace/mcc-splat/src/main/java/es/weso/rank/RankMapper.java
+/home/cesarla/workspace/mcc-splat/src/main/java/es/weso/initialize/InitializeReducer.java

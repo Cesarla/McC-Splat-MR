@@ -1,20 +1,70 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.weso</groupId>
-	<artifactId>McC-Splat</artifactId>
+	<groupId>es.weso</groupId>
+	<artifactId>McC-Splat-MR</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0-SNAPSHOT</version>
-	<name>McC-Splat</name>
-	<url>http://maven.apache.org</url>
+	<version>0.2.0</version>
+	<name>McC-Splat-MR</name>
+	<description>McC-Splat-MR is a MapReduce implementation of the McC-Splat Algorithm, created by Daniel Gayo Avello, using Hadoop Framework. McC-Splat is an iterative algorithm to perform vertex labeling on a partially labeled social network.</description>
+	<url>https://github.com/cesarla/Mc-Splat</url>
 	<properties>
-    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>manual</distribution>
+		</license>
+	</licenses>
+	<organization>
+		<name>WESO</name>
+		<url>http://www.weso.es</url>
+	</organization>
+	<developers>
+		<developer>
+			<id>cesarla</id>
+			<name>César Luis Alvargonzález</name>
+			<email>info@cesarla.com</email>
+			<url>http://www.cesarla.com</url>
+			<organization>WESO</organization>
+			<organizationUrl>http://www.weso.es</organizationUrl>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+				<role>tester</role>
+			</roles>
+		</developer>
+	</developers>
+	<contributors>
+		<contributor>
+			<name>Daniel Gayo-Avello</name>
+			<email>dani@uniovi.es</email>
+			<url>http://di002.edv.uniovi.es/~dani/</url>
+			<organization>Universidad de Oviedo</organization>
+			<organizationUrl>http://www.uniovi.es/</organizationUrl>
+			<roles>
+				<role>Mc-Splat Algorithm Creator</role>
+			</roles>
+		</contributor>
+	</contributors>
+	<scm>
+		<connection>scm:git:git@github.com:Cesarla/McC-Splat-MR.git</connection>
+		<url>scm:git:git@github.com:Cesarla/McC-Splat-MR.git</url>
+		<developerConnection>scm:git:git@github.com:Cesarla/McC-Splat-MR.git</developerConnection>
+	</scm>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.9.5</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -25,23 +75,62 @@
 		<dependency>
 			<groupId>args4j</groupId>
 			<artifactId>args4j</artifactId>
-			<version>2.0.16</version>
+			<version>2.0.23</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.2</version>
+			<version>1.7.5</version>
 		</dependency>
 	</dependencies>
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
 	<build>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
+				<version>3.1</version>
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
+					<showDeprecation>true</showDeprecation>
+					<outputEncoding>UTF-8</outputEncoding>
 				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>fully.qualified.MainClass</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>default</id>
+						<goals>
+							<goal>perform</goal>
+						</goals>
+						<configuration>
+							<pomFileName>
+								acota-utils/pom.xml
+							</pomFileName>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -57,7 +146,7 @@
 							<transformers>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>org.weso.McCSplat</mainClass>
+									<mainClass>es.weso.McCSplat</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>
@@ -66,4 +155,33 @@
 			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+		<profile>
+			<id>release-sign-artifacts</id>
+			<activation>
+				<property>
+					<name>performRelease</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

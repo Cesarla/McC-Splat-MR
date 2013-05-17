@@ -1,0 +1,7 @@
+/home/cesarla/workspace/mcc-splat/src/test/java/es/weso/finalize/FinalizeReducerTest.java
+/home/cesarla/workspace/mcc-splat/src/test/java/es/weso/initialize/InitializeMapperTest.java
+/home/cesarla/workspace/mcc-splat/src/test/java/es/weso/McCSplatTest.java
+/home/cesarla/workspace/mcc-splat/src/test/java/es/weso/initialize/InitializeReducerTest.java
+/home/cesarla/workspace/mcc-splat/src/test/java/es/weso/rank/RankReducerTest.java
+/home/cesarla/workspace/mcc-splat/src/test/java/es/weso/rank/RankMapperTest.java
+/home/cesarla/workspace/mcc-splat/src/test/java/es/weso/finalize/FinalizeMapperTest.java

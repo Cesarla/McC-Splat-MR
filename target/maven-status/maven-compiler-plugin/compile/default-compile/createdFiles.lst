@@ -1,0 +1,9 @@
+es/weso/initialize/InitializeReducer.class
+es/weso/rank/RankReducer.class
+es/weso/McCSplat.class
+es/weso/utils/Mode.class
+es/weso/initialize/InitializeMapper.class
+es/weso/utils/Format.class
+es/weso/finalize/FinalizeReducer.class
+es/weso/finalize/FinalizeMapper.class
+es/weso/rank/RankMapper.class
